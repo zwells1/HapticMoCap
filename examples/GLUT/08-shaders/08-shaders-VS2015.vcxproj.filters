@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="08-shaders.cpp">
+    <ClCompile Include="BoostClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

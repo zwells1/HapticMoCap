@@ -1,0 +1,163 @@
+/*	File Name: Objects.cpp
+Author : Zachary Wells
+Date : 10 / 30 / 2016
+Tested With : Chai version 3.1.1
+*/
+#include "graphics/CPrimitives.h"
+#include "Objects.hpp"
+
+//debug
+#include <iostream>
+
+//constructor
+ZObjects::ZObjects()
+{
+}
+
+//destructor
+ZObjects::~ZObjects()
+{
+}
+
+void ZObjects::MakeBox(
+	cVector3d& Dimensions,
+	cVector3d& Location,
+	//cMaterial* Color,
+	std::string& Amplitude)
+{
+	//spawn object
+	cMesh* mesh = new cMesh();
+	Object Box;
+
+	//create object
+	cCreateBox(mesh,
+		Dimensions.x(),
+		Dimensions.y(),
+		Dimensions.z(),
+		cVector3d(Location.x(), Location.y(), Location.z()),
+		cMatrix3d(cDegToRad(0), cDegToRad(0), cDegToRad(0), C_EULER_ORDER_XYZ));
+
+	// set material properties
+	//setRedLightCoral();
+	//mesh->m_material->Color;
+	mesh->m_material->setRedLightCoral();
+
+	mesh->setLocalPos(Location.x(), Location.y(), Location.z());
+
+	Box.Mesh = mesh;
+
+	Box.Amplitude = Amplitude;
+
+	//record all important edges for collision purposes
+	double x;
+	double y;
+
+	//visuals have a weird offset that cannot realize with contact
+	double buffer = 0.05;
+
+	x = Location.x() + (Dimensions.x() / 2) - buffer;
+	y = Location.y() + (Dimensions.y() / 2) - buffer;
+	Box.TopRight = cVector3d(x, y, 0.0);
+
+	x = Location.x() - (Dimensions.x() / 2) + buffer;
+	y = Location.y() + (Dimensions.y() / 2) - buffer;
+	Box.TopLeft = cVector3d(x, y, 0.0);
+
+	x = Location.x() - (Dimensions.x() / 2) + buffer;
+	y = Location.y() - (Dimensions.y() / 2) + buffer;
+	Box.BottomLeft = cVector3d(x, y, 0.0);
+
+	x = Location.x() + (Dimensions.x() / 2) - buffer;
+	y = Location.y() - (Dimensions.y() / 2) + buffer;
+	Box.BottomRight = cVector3d(x, y, 0.0);
+
+
+	AllObjects.push_back(Box);
+}
+
+bool ZObjects::CollisionDetection(cVector3d& Marker)
+{
+	bool collision = false;
+	for (auto& curr : AllObjects)
+	{
+		if (CheckBounds(curr, Marker))
+		{
+			collision = true;
+		}
+
+		if (collision == true)
+		{
+			curr.Collision = true;
+			break;
+		}
+	}
+	return collision;
+}
+
+Object ZObjects::GetObject(int& Index)
+{
+	return AllObjects[Index];
+}
+
+int ZObjects::GetNumberOfObjects()
+{
+	return AllObjects.size();
+}
+
+void ZObjects::DeleteObject(int& Index)
+{
+	delete AllObjects[Index].Mesh;
+	AllObjects.erase(AllObjects.begin() + Index);
+}
+
+std::vector<Object> ZObjects::GetAllObjects()
+{
+	return AllObjects;
+}
+
+std::string ZObjects::GetAmplitudeOfCollidedObject()
+{
+	std::string temp;
+	for (auto curr : AllObjects)
+	{
+		if (curr.Collision == true)
+		{
+			temp = curr.Amplitude;
+			curr.Collision = false;
+			break;
+		}
+	}
+	return temp;
+}
+
+//private functions
+bool ZObjects::CheckBounds(Object& Obj, cVector3d& Marker)
+{
+	bool MarkerCollided = false;
+
+	if (
+		Obj.TopRight.x() > Marker.x() &&
+		Obj.TopRight.y() > Marker.y() &&   //double check believe it is still z
+		Obj.BottomLeft.x() < Marker.x() &&
+		Obj.BottomLeft.y() < Marker.y())  //double check believe it is still z !!! ???
+	{
+		MarkerCollided = true;
+	}
+
+	/*
+	bool result = Obj.TopRight.x() > Marker.x();
+	std::cout << "Obj.TopRight.x() > Marker.x() " << result << std::endl;
+
+	result = Obj.TopRight.y() > Marker.y();
+	std::cout << "Obj.TopRight.y() > Marker.y() " << result << std::endl;
+
+	result = Obj.BottomLeft.x() < Marker.x();
+	std::cout << "Obj.BottomLeft.x() < Marker.x() " << result << std::endl;
+
+	result = Obj.BottomLeft.y() < Marker.y();
+	std::cout << "Obj.BottomLeft.y() < Marker.y() " << result << std::endl;
+
+	std::cout << "marker " << Marker.x() << " " << Marker.y() << " " << Marker.z() << " " << std::endl;
+	*/
+	return MarkerCollided;
+}

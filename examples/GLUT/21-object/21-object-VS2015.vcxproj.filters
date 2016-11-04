@@ -7,8 +7,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="21-object.cpp">
+    <ClCompile Include="BoostServerNatNet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BoostConnect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BoostConnect.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

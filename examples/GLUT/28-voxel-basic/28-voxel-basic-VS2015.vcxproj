@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="28-voxel-basic.cpp" />
+    <ClCompile Include="WifiSend.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>28-voxel-basic</ProjectName>
+    <ProjectName>Mock server for Harald</ProjectName>
     <ProjectGuid>{C22AB767-6673-4A9D-962E-A47C3D88D57E}</ProjectGuid>
     <RootNamespace>27-voxel</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -93,7 +93,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../../src;../../../external/Eigen;../../../external/glew/include;../../../extras/freeglut/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../../boost_1_59_0/boost_1_59_0;../../../src;../../../external/Eigen;../../../external/glew/include;../../../extras/freeglut/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_MSVC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -113,7 +113,7 @@
       <AdditionalDependencies>freeglut.lib;chai3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../lib/$(Configuration)/$(Platform);../../../extras/freeglut/lib/$(Configuration)/$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../../../boost_1_59_0/boost_1_59_0/stage/lib;../../../lib/$(Configuration)/$(Platform);../../../extras/freeglut/lib/$(Configuration)/$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>

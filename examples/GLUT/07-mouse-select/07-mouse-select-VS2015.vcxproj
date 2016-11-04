@@ -19,7 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="Marker.cpp" />
     <ClCompile Include="MoCapIntegrated.cpp" />
+    <ClCompile Include="MoCapLink.cpp" />
+    <ClCompile Include="Objects.cpp" />
+    <ClCompile Include="WifiConnect.cpp" />
+    <ClCompile Include="WorldMarkers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Filter.hpp" />
+    <ClInclude Include="Marker.hpp" />
+    <ClInclude Include="MoCapLink.hpp" />
+    <ClInclude Include="Objects.hpp" />
+    <ClInclude Include="WifiConnect.hpp" />
+    <ClInclude Include="WorldMarkers.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>MoCapIntegrated</ProjectName>
@@ -93,7 +107,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../../src;../../../external/Eigen;../../../external/glew/include;../../../extras/freeglut/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../../boost_1_59_0/boost_1_59_0;../../../src;../../../external/Eigen;../../../external/glew/include;../../../extras/freeglut/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_MSVC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -113,7 +127,7 @@
       <AdditionalDependencies>freeglut.lib;chai3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../lib/$(Configuration)/$(Platform);../../../extras/freeglut/lib/$(Configuration)/$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../../../boost_1_59_0/boost_1_59_0/stage/lib;../../../lib/$(Configuration)/$(Platform);../../../extras/freeglut/lib/$(Configuration)/$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>

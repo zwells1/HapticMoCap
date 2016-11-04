@@ -42,7 +42,18 @@ POSSIBILITY OF SUCH DAMAGE.
 //==============================================================================
 
 //------------------------------------------------------------------------------
+// asio has to happen before windows.h otherwise errors will occur with
+//winsock
+#include <boost/asio.hpp> 
 #include "chai3d.h"
+#include "Filter.hpp"
+#include "Marker.hpp"
+#include "MoCapLink.hpp"
+#include "Objects.hpp"
+#include "WifiConnect.hpp"
+#include "WorldMarkers.hpp"
+
+#include <mutex>
 //------------------------------------------------------------------------------
 using namespace chai3d;
 using namespace std;
@@ -53,6 +64,13 @@ using namespace std;
 #include "GLUT/glut.h"
 #endif
 //------------------------------------------------------------------------------
+// TESTING SETTINGS
+//------------------------------------------------------------------------------
+
+#define WIFI_TESTING
+
+
+
 
 //------------------------------------------------------------------------------
 // GENERAL SETTINGS
@@ -102,6 +120,20 @@ cLabel* labelHapticRate;
 //object that is moved around
 cMesh* sphere = new cMesh();
 
+//All the Marker Spheres in the map
+ZWorldMarkers* AllMarkers;
+
+//objects related the coors of the hand
+ZMarker MyHand;
+
+std::vector<Markers> OldPos;
+
+std::vector<Markers> NewPos;
+
+
+double maxStiffness;
+
+
 // indicates if the haptic simulation currently running
 bool simulationRunning = false;
 
@@ -119,6 +151,20 @@ int windowH;
 int windowPosX;
 int windowPosY;
 
+
+
+//Wifi hook up
+boost::asio::io_service io_service;
+ZWifi WifiHook(io_service, "192.168.0.194", "123");
+
+//Filter globals
+ZFilter Filter;
+
+//mutex for when the objects change
+std::mutex mObjectOnMapChange;
+
+//all other objects that are on the map
+ZObjects AllObjects;
 
 //------------------------------------------------------------------------------
 // DECLARED FUNCTIONS
@@ -148,18 +194,26 @@ void scaleObject(cMesh& Obj, const double x, const double y, const double z);
 //set the tabletop
 void PlaceAndCenterFloor(cMesh* base,
 	cVector3d& TopLeft,
-	cVector3d& BottomLeft,
-	cVector3d& TopRight,
-	cVector3d& BottomRight);
+	cVector3d& BottomRight,
+	cVector3d& Origin);
 
-//==============================================================================
-/*
-DEMO:   13-primitives.cpp
 
-This example illustrates how to build simple triangle based mesh primitives
-using the functions provided in file graphics/CPrimitives.h
-*/
-//==============================================================================
+//initial function to create the marker positions
+void InitMarkers();
+
+//update where the markers should go
+void CheckMarkers();
+
+void ReadAllLocalPositions();
+
+void UpdateMarkerLocations();
+
+void SwapMarker(WorldMarker& Mark);
+
+//testing features
+void addSphere();
+void removeSphere();
+void ReadValsWTF();
 
 int main(int argc, char* argv[])
 {
@@ -179,6 +233,8 @@ int main(int argc, char* argv[])
 	cout << "[m] - Enable/Disable vertical mirroring" << endl;
 	cout << "[x] - Exit application" << endl;
 
+	cout << "[p] - grab packet from server" << endl;
+
 	cout << "move the sphere around!!" << endl;
 	cout << "[w] moves +Y" << endl;
 	cout << "[s] moves -Y" << endl;
@@ -187,6 +243,8 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "[q] moves +Z" << endl;
 	cout << "[e] moves -Z" << endl;
+
+	cout << "[p] & [l] are the flavor of the day!" << endl;
 
 	cout << endl << endl;
 
@@ -235,7 +293,6 @@ int main(int argc, char* argv[])
 		glutFullScreen();
 	}
 
-
 	//--------------------------------------------------------------------------
 	// WORLD - CAMERA - LIGHTING
 	//--------------------------------------------------------------------------
@@ -250,9 +307,10 @@ int main(int argc, char* argv[])
 	camera = new cCamera(world);
 	world->addChild(camera);
 
+	float scalar = 2.0;
 	// position and orient the camera
-	camera->set(cVector3d(0.9, 0.0, 0.6),    // camera position (eye)
-		cVector3d(0.0, 0.0, 0.0),    // lookat position (target)
+	camera->set(cVector3d(1.0, -2.0, scalar*1.2),    // camera position (eye)
+		cVector3d(1.0, 1.0, 0.0),    // lookat position (target)
 		cVector3d(0.0, 0.0, 1.0));   // direction of the (up) vector
 
 									 // set the near and far clipping planes of the camera
@@ -294,7 +352,6 @@ int main(int argc, char* argv[])
 	// set light cone half angle
 	light->setCutOffAngleDeg(45);
 
-
 	//--------------------------------------------------------------------------
 	// HAPTIC DEVICES / TOOLS
 	//--------------------------------------------------------------------------
@@ -319,7 +376,7 @@ int main(int argc, char* argv[])
 	tool->setHapticDevice(hapticDevice);
 
 	// map the physical workspace of the haptic device to a larger virtual workspace.
-	tool->setWorkspaceRadius(1.0);
+	tool->setWorkspaceRadius(5.0);
 
 	// define the radius of the tool (sphere)
 	double toolRadius = 0.05;
@@ -343,7 +400,6 @@ int main(int argc, char* argv[])
 	// start the haptic tool
 	tool->start();
 
-
 	//--------------------------------------------------------------------------
 	// CREATE OBJECTS
 	//--------------------------------------------------------------------------
@@ -353,20 +409,18 @@ int main(int argc, char* argv[])
 	double workspaceScaleFactor = tool->getWorkspaceScaleFactor();
 
 	// stiffness properties
-	double maxStiffness = hapticDeviceInfo.m_maxLinearStiffness / workspaceScaleFactor;
+	maxStiffness = hapticDeviceInfo.m_maxLinearStiffness / workspaceScaleFactor;
 
 
 	/////////////////////////////////////////////////////////////////////////
 	// BASE
 	/////////////////////////////////////////////////////////////////////////
-
+	
 	//eventualy these points will be read in and deciphered from the NatNet
-	cVector3d TL = cVector3d(-1.0, 1.0, 0.0);
-	cVector3d BL = cVector3d(-1.0, -1.0, 0.0);
-
-	cVector3d TR = cVector3d(1.0, 1.0, 0.0);
-	cVector3d BR = cVector3d(-1.0, 1.0, 0.0);
-
+	double ScaleFloor = 2.0;
+	cVector3d TL = cVector3d(-ScaleFloor, ScaleFloor, 0.0);
+	cVector3d BR = cVector3d(ScaleFloor, -ScaleFloor, 0.0);
+	cVector3d Origin = cVector3d(1.0, 1.0, -0.1);
 	//create a box based off points passed in from the corners of the table
 
 	// create a mesh
@@ -376,38 +430,13 @@ int main(int argc, char* argv[])
 	world->addChild(base);
 
 
-	PlaceAndCenterFloor(base, TL, BL, TR, BR);
+	PlaceAndCenterFloor(base, TL, BR, Origin);
 
 	base->m_material->setStiffness(0.5 * maxStiffness);
 
 	// build collision detection tree
 	base->createAABBCollisionDetector(toolRadius);
-
-	/////////////////////////////////////////////////////////////////////////
-	// SPHERE
-	/////////////////////////////////////////////////////////////////////////
-	// create a mesh
-	//created as global in order to move it around
-
-	// add object to world
-	world->addChild(sphere);
-
-	// build mesh using a cylinder primitive
-	cCreateSphere(sphere,
-		0.07,
-		36,
-		36,
-		cVector3d(0.0, 0.0, 0.0),
-		cMatrix3d(cDegToRad(0), cDegToRad(0), cDegToRad(0), C_EULER_ORDER_XYZ)
-	);
-
-	// set material properties
-	sphere->m_material->setPurpleBlueViolet();
-	sphere->m_material->setStiffness(0.5 * maxStiffness);
-
-	// build collision detection tree
-	sphere->createAABBCollisionDetector(toolRadius);
-
+	
 	//--------------------------------------------------------------------------
 	// WIDGETS
 	//--------------------------------------------------------------------------
@@ -429,6 +458,29 @@ int main(int argc, char* argv[])
 		cColorf(1.0f, 1.0f, 1.0f),
 		cColorf(0.8f, 0.8f, 0.8f),
 		cColorf(0.8f, 0.8f, 0.8f));
+
+
+	//--------------------------------------------------------------------------
+	// INITIALIZE -- Frame
+	//--------------------------------------------------------------------------
+	
+	AllMarkers = new ZWorldMarkers();
+
+	InitMarkers();
+	
+	{
+		cVector3d Dim1 = cVector3d(0.3, 0.3, 0.1);
+		cVector3d Loc1 = cVector3d(0.4, 0.4, 0.0);
+		std::string Amplitude = "5";
+		AllObjects.MakeBox(Dim1, Loc1, Amplitude);
+
+	}
+
+	//add all objects to the world
+	for (auto& curr : AllObjects.GetAllObjects() )
+	{
+		world->addChild(curr.Mesh);
+	}
 
 
 	//--------------------------------------------------------------------------
@@ -513,31 +565,43 @@ void keySelect(unsigned char key, int x, int y)
 	//up
 	if (key == 'w')
 	{
-		sphere->translate(-1 * adjustSpacing, 0.0, 0.0);
+		//sphere->translate(0.0, adjustSpacing, 0.0);
+		sphere->setLocalPos(0.0, 0.3, 0.0);
 	}
 
 	//left
 	if (key == 'a')
 	{
-		sphere->translate(0.0, -1 * adjustSpacing, 0.0);
+		//sphere->translate(-adjustSpacing, 0.0, 0.0);
+		sphere->setLocalPos(0.1, 0.0, 0.0);
 	}
 
 	//right
 	if (key == 'd')
 	{
-		sphere->translate(0.0, 1 * adjustSpacing, 0.0);
+		//sphere->translate(adjustSpacing, 0.0, 0.0);
+		sphere->setLocalPos(0.3, 0.0, 0.0);
 	}
 
 	//down
 	if (key == 's')
 	{
-		sphere->translate(1 * adjustSpacing, 0.0, 0.0);
+		//sphere->translate(0.0, -adjustSpacing, 0.0);
+		sphere->setLocalPos(0.0, 0.1, 0.0);
+	}
+
+	if (key == 'o')
+	{
+		sphere->setLocalPos(0, 0, 0);
 	}
 
 	//right
 	if (key == 'q')
 	{
 		sphere->translate(0.0, 0.0, 1 * adjustSpacing);
+		std::cout << "glob: " << sphere->getGlobalPos() << std::endl;
+		std::cout << "local: " << sphere->getLocalPos() << std::endl;
+		std::cout << std::endl;
 	}
 
 	//down
@@ -546,6 +610,21 @@ void keySelect(unsigned char key, int x, int y)
 		sphere->translate(0.0, 0.0, -1 * adjustSpacing);
 	}
 
+	//
+	if (key == 'p')
+	{
+		//WifiHook.send("5");
+		addSphere();
+		std::cout << "glob: " << sphere->getGlobalPos() << std::endl;
+		std::cout << "local: " << sphere->getLocalPos() << std::endl;
+	}
+
+	if (key == 'l')
+	{
+		//WifiHook.send("0");
+		//removeSphere();
+		ReadValsWTF();
+	}
 
 }
 
@@ -592,7 +671,13 @@ void updateGraphics(void)
 	// update position of label
 	labelHapticRate->setLocalPos((int)(0.5 * (windowW - labelHapticRate->getWidth())), 15);
 
-
+	/////////////////////////////////////////////////////////////////////
+	// USER DEFINED OBJECTS
+	/////////////////////////////////////////////////////////////////////
+	{
+		std::lock_guard<std::mutex> guard(mObjectOnMapChange);
+			CheckMarkers();
+	}
 	/////////////////////////////////////////////////////////////////////
 	// RENDER SCENE
 	/////////////////////////////////////////////////////////////////////
@@ -603,7 +688,7 @@ void updateGraphics(void)
 	// render world
 	camera->renderView(windowW, windowH);
 
-	// swap buffers
+	// swap buffers actually updates the visuals of the object
 	glutSwapBuffers();
 
 	// wait until all GL commands are completed
@@ -643,15 +728,28 @@ void updateHaptics(void)
 		// update frequency counter
 		frequencyCounter.signal(1);
 
-		// compute global reference frames for each object
-		world->computeGlobalPositions(true);
-
-		// update position and orientation of tool
-		tool->updateFromDevice();
-
-		// compute interaction forces
-		tool->computeInteractionForces();
-
+		/////////////////////////////////////////////////////////////////////////
+		// USER DEFINED MANIPULATION
+		/////////////////////////////////////////////////////////////////////////
+		
+		bool coll;
+		{
+			std::lock_guard<std::mutex> guard(mObjectOnMapChange);
+			coll = AllObjects.CollisionDetection(AllMarkers->GrabLastElement());
+		}
+			if (coll == true)
+			{
+				#ifdef WIFI_TESTING
+				WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
+				#endif
+			}
+			else
+			{
+				#ifdef WIFI_TESTING
+				WifiHook.send("0");
+				#endif
+			}
+		
 
 		/////////////////////////////////////////////////////////////////////////
 		// HAPTIC MANIPULATION
@@ -659,7 +757,7 @@ void updateHaptics(void)
 
 		// compute transformation from world to tool (haptic device)
 		cTransform world_T_tool = tool->getDeviceGlobalTransform();
-
+		
 		// get status of user switch
 		bool button = tool->getUserSwitch(0);
 
@@ -740,27 +838,217 @@ void updateHaptics(void)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void PlaceAndCenterFloor(cMesh* base,
 	cVector3d& TopLeft,
-	cVector3d& BottomLeft,
-	cVector3d& TopRight,
-	cVector3d& BottomRight)
+	cVector3d& BottomRight,
+	cVector3d& Origin)
 {
-	double width = (TopRight.x() - TopLeft.x()) / 2;
-	double height = (TopLeft.y() - BottomLeft.y()) / 2;
-
-	cout << "width " << width << endl;
-	cout << "height " << height << endl;
+	double width = (BottomRight.x() - Origin.x()) * 2  ;
+	double height = (TopLeft.y() - Origin.y()) * 2;
 
 	//build mesh using a box primitive
 	cCreateBox(base,
 		width,
 		height,
 		0.01,
-		cVector3d(0.0, 0.0, 0.0),
+		cVector3d(Origin.x(), Origin.y(), Origin.z()),
 		cMatrix3d(cDegToRad(0), cDegToRad(0), cDegToRad(0), C_EULER_ORDER_XYZ));
 
 	// set material properties
 	base->m_material->setBrownBlanchedAlmond();
+}
+
+
+void InitMarkers()
+{
+
+	MyHand.ConfigureInitialMarkers();
+
+	OldPos = MyHand.GetPositionOfMarkers();
+
+	AllMarkers->InitFrame(OldPos);
+
+	AllMarkers->InitAllMotionMarkers(OldPos);
+
+	//add all markers to the world
+	for (auto curr : AllMarkers->GetReferenceMarkers())
+	{
+		world->addChild(curr.Marker);
+	}
+}
+
+void CheckMarkers()
+{
+	std::vector<Markers> NewPos = MyHand.UpdatePositionOfMarkers();
+	bool MarkersMoved = AllMarkers->CheckForMovedMarkerPosition(NewPos); 
+
+	//same number of markers did they move??
+	if (MyHand.DifferentNumberOfMarkers() == false)	
+	{	
+		//update markers positions
+		if (MarkersMoved)
+		{
+			UpdateMarkerLocations();
+		}
+	}
+	//different number of markers, lost or gained a marker
+	else 
+	{
+		//add new markers to the world
+		for (auto& Ref : AllMarkers->GetReferenceMarkers())
+		{
+			if (Ref.AddToWorld == true && Ref.ignore == false)
+			{
+				world->addChild(Ref.Marker);
+				Ref.AddToWorld = false;
+			}
+		}
+
+		//remove old dead markers from the world
+		if (NewPos.size() != AllMarkers->NumberOfWorldMarkers())
+		{
+			int index = -1;
+			for (auto& Ref : AllMarkers->GetReferenceMarkers())
+			{
+				index++;
+				bool found = false;
+				for (auto& New : NewPos)
+				{
+					if (New.MarkerNumber == Ref.MarkerNumber) found = true;
+				}
+			//if not found remove
+				if (found != true && Ref.ignore == false)
+				{
+					world->removeChild(Ref.Marker);
+					//erase that element from array
+					AllMarkers->EraseMarker(index);
+					
+				}
+			}
+		}
+	//reset the markers difference
+		MyHand.DiffNumMarkers(false);
+	}
+
+	OldPos = NewPos;
+}
+
+void UpdateMarkerLocations()
+{
+	for (auto& curr : AllMarkers->GetReferenceMarkers())
+	{
+		if (curr.ReadyForUpdate == true && curr.ignore == false)
+		{
+			//std::cout <<"before "<< curr.Marker->getLocalPos() << std::endl;
+			//cVector3d OriginOffset = AllMarkers->GetOrigin();
+			/*curr.Marker->setLocalPos(
+				curr.X - OriginOffset.x(),
+				curr.Z - OriginOffset.z(),
+				curr.Y - OriginOffset.y());
+				*/
+			SwapMarker(curr);
+			//curr.Marker->translate(-curr.XDist, -curr.ZDist, -curr.YDist);
+			//std::cout << "after " << curr.Marker->getLocalPos() << std::endl;
+			curr.ReadyForUpdate = false;
+		}
+	}
+}
+
+void SwapMarker(WorldMarker& Mark)
+{
+	world->removeChild(Mark.Marker);
+	AllMarkers->SwapMarker(Mark);
+	world->addChild(Mark.Marker);
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+// Debug Functions
+/////////////////////////////////////////////////////////////////////////
+void ReadAllLocalPositions()
+{
+	cVector3d O = AllMarkers->GetOrigin();
+
+	std::cout << O.x() << " " << O.y() << " " << O.z() << std::endl;
+
+	for (auto& curr : AllMarkers->GetReferenceMarkers())
+	{
+		std::cout << "local: " << curr.MarkerNumber << " " << curr.Marker->getLocalPos() << std::endl;
+		std::cout << "global: " << curr.MarkerNumber << " " << curr.Marker->getGlobalPos() << std::endl;
+	}
+
+
+
+}
+
+void addSphere()
+{
+	if (sphere == nullptr)
+	{
+		sphere = new cMesh();
+	}
+
+	// add object to world
+	world->addChild(sphere);
+
+
+	std::vector<WorldMarker> test = AllMarkers->GetReferenceMarkers();
+	WorldMarker test1 = test.back();
+	double objX = test1.X;
+	double objY = test1.Y;
+	double objZ = test1.Z;
+
+	cVector3d OriginOffset = AllMarkers->GetOrigin();
+
+	double X = objX - OriginOffset.x();
+	double Y = objY - OriginOffset.y();
+	double Z = objZ - OriginOffset.z();
+
+
+
+	// build mesh using a cylinder primitive
+	cCreateSphere(sphere,
+		0.07,
+		36,
+		36,
+		cVector3d(X, Z, Y),
+		cMatrix3d(cDegToRad(0), cDegToRad(0), cDegToRad(0), C_EULER_ORDER_XYZ));
+
+	
+
+	std::cout << X << " "<< Z << std::endl;
+	
+	sphere->setLocalPos(X, Z, Y);
+	// set material properties
+	sphere->m_material->setPurpleBlueViolet();
+	sphere->m_material->setStiffness(0.5 * maxStiffness);
+
+	// build collision detection tree
+	double toolRadius = 0.05;
+	sphere->createAABBCollisionDetector(toolRadius);
+}
+
+void ReadValsWTF()
+{
+	ReadAllLocalPositions();
+	
+	std::vector<WorldMarker> test = AllMarkers->GetReferenceMarkers();
+	WorldMarker test1 = test.back();
+	double objX = test1.X;
+	double objY = test1.Y;
+	double objZ = test1.Z;
+	
+	std::cout << "purple Local " << sphere->getLocalPos() << std::endl;
+	std::cout << "purple Global " << sphere->getGlobalPos() << std::endl;
+
+	std::cout <<"marker local " << test1.Marker->getLocalPos() << std::endl;
+	std::cout << "marker global " << test1.Marker->getGlobalPos() << std::endl;
+}
+
+
+void removeSphere()
+{
+	world->removeChild(sphere);
+	delete sphere;
+	sphere = nullptr;
 }

@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="27-multiframes.cpp">
+    <ClCompile Include="BoostServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

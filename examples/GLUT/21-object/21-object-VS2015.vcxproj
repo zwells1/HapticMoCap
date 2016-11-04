@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>21-object</ProjectName>
+    <ProjectName>BoostServerNatNetClient</ProjectName>
     <ProjectGuid>{093BD170-68C0-488A-890F-F3BB3B9A7FD1}</ProjectGuid>
     <RootNamespace>21-object</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -90,7 +90,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../../src;../../../external/Eigen;../../../external/glew/include;../../../extras/freeglut/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../../NatNet_SDK_2.10/NatNetSDK/include;../../../../../boost_1_59_0/boost_1_59_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_MSVC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -104,13 +104,13 @@
       <DisableSpecificWarnings>4244;4305;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <Link>
-      <AdditionalDependencies>freeglut.lib;chai3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>NatNetLibStatic.lib;ws2_32.lib;%(AdditionalDependencies);legacy_stdio_definitions.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../lib/$(Configuration)/$(Platform);../../../extras/freeglut/lib/$(Configuration)/$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../../../NatNet_SDK_2.10/NatNetSDK/lib;../../../../../boost_1_59_0/boost_1_59_0/stage/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
@@ -261,7 +261,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="21-object.cpp" />
+    <ClCompile Include="BoostConnect.cpp" />
+    <ClCompile Include="BoostServerNatNet.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BoostConnect.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

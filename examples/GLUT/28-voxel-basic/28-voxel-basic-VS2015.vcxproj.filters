@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="28-voxel-basic.cpp">
+    <ClCompile Include="WifiSend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
