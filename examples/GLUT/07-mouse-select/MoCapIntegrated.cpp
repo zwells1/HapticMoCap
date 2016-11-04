@@ -470,9 +470,22 @@ int main(int argc, char* argv[])
 	
 	{
 		cVector3d Dim1 = cVector3d(0.3, 0.3, 0.1);
-		cVector3d Loc1 = cVector3d(0.4, 0.4, 0.0);
+		cVector3d Loc1 = cVector3d(0.1, 0.4, 0.0);
 		std::string Amplitude = "5";
-		AllObjects.MakeBox(Dim1, Loc1, Amplitude);
+		ObjectColor color = ObjectColor::red;
+		AllObjects.MakeBox(Dim1, Loc1, color, Amplitude);
+
+		Dim1 = cVector3d(0.3, 0.3, 0.1);
+		Loc1 = cVector3d(0.4, 0.4, 0.0);
+		Amplitude = "3";
+		color = ObjectColor::yellow;
+		AllObjects.MakeBox(Dim1, Loc1, color, Amplitude);
+
+		Dim1 = cVector3d(0.3, 0.3, 0.1);
+		Loc1 = cVector3d(0.7, 0.4, 0.0);
+		Amplitude = "1";
+		color = ObjectColor::green;
+		AllObjects.MakeBox(Dim1, Loc1, color, Amplitude);
 
 	}
 

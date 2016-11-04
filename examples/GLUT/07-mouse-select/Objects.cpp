@@ -22,7 +22,7 @@ ZObjects::~ZObjects()
 void ZObjects::MakeBox(
 	cVector3d& Dimensions,
 	cVector3d& Location,
-	//cMaterial* Color,
+	ObjectColor Color,
 	std::string& Amplitude)
 {
 	//spawn object
@@ -38,9 +38,22 @@ void ZObjects::MakeBox(
 		cMatrix3d(cDegToRad(0), cDegToRad(0), cDegToRad(0), C_EULER_ORDER_XYZ));
 
 	// set material properties
-	//setRedLightCoral();
-	//mesh->m_material->Color;
-	mesh->m_material->setRedLightCoral();
+	if (Color == ObjectColor::red)
+	{
+		mesh->m_material->setRedCrimson();
+	}
+	else if (Color == ObjectColor::yellow)
+	{
+		mesh->m_material->setYellow();
+	}
+	else if (Color == ObjectColor::green)
+	{
+		mesh->m_material->setGreenLight();
+	}
+	else
+	{
+		mesh->m_material->setPurpleLavender();
+	}
 
 	mesh->setLocalPos(Location.x(), Location.y(), Location.z());
 

@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01-mydevice", "examples\GLUT\01-mydevice\01-mydevice-VS2015.vcxproj", "{DF4A1F32-BA3E-4604-A9F5-721CAAA9EA71}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A9F01342-5463-4634-B1F9-BF98CD5591B0} = {A9F01342-5463-4634-B1F9-BF98CD5591B0}
-		{71AF75A0-52B6-4C1B-8E56-CB31C6741A18} = {71AF75A0-52B6-4C1B-8E56-CB31C6741A18}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02-multi-devices", "examples\GLUT\02-multi-devices\02-multi-devices-VS2015.vcxproj", "{D133A1BF-E97C-4495-8FD5-556CA25179D8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -26,17 +22,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "32-Mocap", "examples\GLUT\2
 		{71AF75A0-52B6-4C1B-8E56-CB31C6741A18} = {71AF75A0-52B6-4C1B-8E56-CB31C6741A18}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "21-object", "examples\GLUT\21-object\21-object-VS2015.vcxproj", "{093BD170-68C0-488A-890F-F3BB3B9A7FD1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A9F01342-5463-4634-B1F9-BF98CD5591B0} = {A9F01342-5463-4634-B1F9-BF98CD5591B0}
-		{71AF75A0-52B6-4C1B-8E56-CB31C6741A18} = {71AF75A0-52B6-4C1B-8E56-CB31C6741A18}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoostServerNatNetClient", "examples\GLUT\21-object\21-object-VS2015.vcxproj", "{093BD170-68C0-488A-890F-F3BB3B9A7FD1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "27-multiframes", "examples\GLUT\27-multiframes\27-multiframes-VS2015.vcxproj", "{41047738-C5C7-4821-9E34-E3DCA990E716}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A9F01342-5463-4634-B1F9-BF98CD5591B0} = {A9F01342-5463-4634-B1F9-BF98CD5591B0}
-		{71AF75A0-52B6-4C1B-8E56-CB31C6741A18} = {71AF75A0-52B6-4C1B-8E56-CB31C6741A18}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoostServer", "examples\GLUT\27-multiframes\27-multiframes-VS2015.vcxproj", "{41047738-C5C7-4821-9E34-E3DCA990E716}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CHAI3D", "CHAI3D-VS2015.vcxproj", "{A9F01342-5463-4634-B1F9-BF98CD5591B0}"
 EndProject
@@ -44,7 +32,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freeglut", "extras\freeglut
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoostClient", "examples\GLUT\08-shaders\08-shaders-VS2015.vcxproj", "{FA374001-442E-4E89-9E46-83CCE70A3064}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleClient", "..\..\NatNet_SDK_2.10\NatNetSDK\Samples\SampleClient\SampleClient.vcxproj", "{FA84C39B-9F95-4151-A7A9-16BB5B0DE170}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NatNetClient", "..\..\NatNet_SDK_2.10\NatNetSDK\Samples\SampleClient\SampleClient.vcxproj", "{FA84C39B-9F95-4151-A7A9-16BB5B0DE170}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mock server for Harald", "examples\GLUT\28-voxel-basic\28-voxel-basic-VS2015.vcxproj", "{C22AB767-6673-4A9D-962E-A47C3D88D57E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +124,14 @@ Global
 		{FA84C39B-9F95-4151-A7A9-16BB5B0DE170}.Release|x64.Build.0 = Release|x64
 		{FA84C39B-9F95-4151-A7A9-16BB5B0DE170}.Release|x86.ActiveCfg = Release|Win32
 		{FA84C39B-9F95-4151-A7A9-16BB5B0DE170}.Release|x86.Build.0 = Release|Win32
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Debug|x64.ActiveCfg = Debug|x64
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Debug|x64.Build.0 = Debug|x64
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Debug|x86.ActiveCfg = Debug|Win32
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Debug|x86.Build.0 = Debug|Win32
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Release|x64.ActiveCfg = Release|x64
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Release|x64.Build.0 = Release|x64
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Release|x86.ActiveCfg = Release|Win32
+		{C22AB767-6673-4A9D-962E-A47C3D88D57E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

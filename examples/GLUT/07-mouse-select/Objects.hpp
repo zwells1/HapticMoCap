@@ -34,6 +34,10 @@ struct Object
 
 };
 
+enum class ObjectColor
+{
+	red = 0, yellow = 1, green = 2
+};
 
 
 class ZObjects
@@ -56,7 +60,7 @@ public:
 	void ZObjects::MakeBox(
 		cVector3d& Dimensions,
 		cVector3d& Location,
-		//cMaterial* Color,
+		ObjectColor Color,
 		std::string& Power);
 
 	//run through
