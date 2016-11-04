@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 
@@ -38,6 +39,25 @@ int main()
 	boost::asio::io_service io_service;
 	UDPClient client(io_service, "192.168.0.194", "123");
 
+	int nint = 5;
+
+	int LowFreq = 325;
+	int HighFreq = 1000;
+	char bytes [5];
 	
-	client.send("15");
+	bytes[0] = nint & 0x000000ff;
+	
+	bytes[1] = (LowFreq & 0x0000ff00) >> 8;
+	
+	bytes[2] = LowFreq & 0x000000ff;
+	
+	bytes[3] = (HighFreq & 0x0000ff00) >> 8;
+
+	bytes[4] = HighFreq & 0x000000ff;
+
+	std::string x;
+	std::stringstream ss;
+	ss << bytes;
+	ss >> x;
+	client.send(x);
 }
