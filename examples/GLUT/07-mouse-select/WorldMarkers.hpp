@@ -56,8 +56,6 @@ public:
 	//--------------------------------------------------------------------------
 public:
 
-	void InitFrame(std::vector<Markers>);
-
 	void CreateMarkers(Markers& obj, WorldMarker& SetMarker);
 
 	std::vector<WorldMarker> GetReferenceMarkers();
@@ -87,17 +85,7 @@ public:
 	//--------------------------------------------------------------------------
 private:
 
-	int FindBottomLeftCorner(std::vector<Markers>& Marks);
-	
-	int FindTopLeftCorner(std::vector<Markers>& Marks);
-	
-	int FindBottomRightCorner(std::vector<Markers>& Marks);
-
-	void ZWorldMarkers::MakeCornersPermanent();
-
 	bool CompareMarkers(Markers& Mark, WorldMarker& Ref);
-
-	bool CornerMarkerTest(unsigned int& check);
 
 	void SetOrigin(cVector3d& Offset);
 
@@ -108,13 +96,6 @@ private:
 private:
 
 	std::vector<WorldMarker> ReferenceMarkers;
-
-	cVector3d OriginOffset;
-
-	int mBR;
-	int mBL;
-	int mTL;
-	
 
 };
 #endif
