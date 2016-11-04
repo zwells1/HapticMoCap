@@ -82,43 +82,9 @@ int ZWorldMarkers::FindTopLeftCorner(std::vector<Markers>& Marks)
 	return tempMarkerNumber;
 }
 
-int ZWorldMarkers::FindBottomRightCorner(std::vector<Markers>& Marks)
-{
-	unsigned int tempMarkerNumber;
-	unsigned int VectorIndice;
-	//set very small so that we can always find a larger num
-	float largestX = std::numeric_limits<double>::min();
-
-	if (Marks.size() == 0)
-		std::cerr <<
-		"World Markers:: findBRCorner error"
-		<< std::endl;
-	
-	int i = -1;
-	for (auto curr : Marks)
-	{
-		i++;
-		if (curr.XPos >= largestX)
-		{
-			largestX = curr.XPos;
-			tempMarkerNumber = curr.MarkerNumber;
-			VectorIndice = i;
-		}
-	}
-
-	WorldMarker temp;
-	temp.MarkerNumber = tempMarkerNumber;
-	
-	CreateMarkers(Marks[VectorIndice], temp);
-
-	return tempMarkerNumber;
-}
-
-
 //constructor
 ZWorldMarkers::ZWorldMarkers()
 {
-	mBR = -1;
 	mBL = -1;
 	mTL = -1;
 }
@@ -138,17 +104,12 @@ void ZWorldMarkers::InitFrame(std::vector<Markers> InitMarkerSet)
 	//find the TL corner (largest Z value)
 	mTL = FindTopLeftCorner(InitMarkerSet);
 
-	//find the BR corner(Largest X value)
-	mBR = FindBottomRightCorner(InitMarkerSet);
-
 	//sanity check make sure i dont have to points that are the deemed
 	//two seperate corners
-	if (mBL == mTL ||
-		mTL == mBR ||
-		mBL == mBR)
+	if (mBL == mTL)
 	{
 		std::cout <<
-			"Two points are claimed to be the same corner" <<
+			"Corners claim to be the same corner" <<
 			std::endl;
 		exit(1);
 	}
@@ -202,7 +163,7 @@ std::vector<WorldMarker> ZWorldMarkers::GetReferenceMarkers()
 
 void ZWorldMarkers::MakeCornersPermanent()
 {
-	if(ReferenceMarkers.size() != 3)
+	if(ReferenceMarkers.size() != 2)
 	{
 		std::cout << "ZWorldMarkers::MakeCornersPermanent is being used"
 			<< "improperly there are "
@@ -234,9 +195,7 @@ void ZWorldMarkers::InitAllMotionMarkers(std::vector<Markers> InitMarkerSet)
 
 bool ZWorldMarkers::CornerMarkerTest(unsigned int& check)
 {
-	if (check != mBR &&
-		check != mTL &&
-		check != mBL)
+	if (check != mTL && check != mBL)
 	{
 		return true;
 	}
@@ -315,9 +274,17 @@ cVector3d ZWorldMarkers::GetOrigin()
 
 void ZWorldMarkers::EraseMarker(int& index)
 {
-	delete ReferenceMarkers[index].Marker;
-	//could have out of bounds issues !!! ???	
-	ReferenceMarkers.erase(ReferenceMarkers.begin() + index);
+	
+	if (index < ReferenceMarkers.size())
+	{
+		delete ReferenceMarkers[index].Marker;
+		//could have out of bounds issues !!! ???	
+		ReferenceMarkers.erase(ReferenceMarkers.begin() + index);
+	}
+	else
+	{
+		std::cout << "error out of bounds could not delete obj"<< std::endl;
+	}
 }
 
 

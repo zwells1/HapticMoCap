@@ -696,7 +696,7 @@ void updateGraphics(void)
 	/////////////////////////////////////////////////////////////////////
 
 	// update shadow maps (if any)
-	world->updateShadowMaps(false, mirroredDisplay);
+	//world->updateShadowMaps(false, mirroredDisplay);
 
 	// render world
 	camera->renderView(windowW, windowH);

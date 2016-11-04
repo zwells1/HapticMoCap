@@ -91,8 +91,6 @@ private:
 	
 	int FindTopLeftCorner(std::vector<Markers>& Marks);
 	
-	int FindBottomRightCorner(std::vector<Markers>& Marks);
-
 	void ZWorldMarkers::MakeCornersPermanent();
 
 	bool CompareMarkers(Markers& Mark, WorldMarker& Ref);
@@ -110,11 +108,9 @@ private:
 	std::vector<WorldMarker> ReferenceMarkers;
 
 	cVector3d OriginOffset;
-
-	int mBR;
-	int mBL;
-	int mTL;
 	
-
+	int mBL;
+	
+	int mTL;
 };
 #endif
