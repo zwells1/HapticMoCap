@@ -148,7 +148,7 @@ void ZWorldMarkers::InitFrame(std::vector<Markers> InitMarkerSet)
 		mBL == mBR)
 	{
 		std::cout <<
-			"Two points are claimed to be two seperate corners" <<
+			"Two points are claimed to be the same corner" <<
 			std::endl;
 		exit(1);
 	}
@@ -195,7 +195,6 @@ void ZWorldMarkers::CreateMarkers(Markers& obj, WorldMarker& SetMarker)
 	ReferenceMarkers.push_back(SetMarker);
 }
 
-
 std::vector<WorldMarker> ZWorldMarkers::GetReferenceMarkers()
 {
 	return ReferenceMarkers;
@@ -232,7 +231,6 @@ void ZWorldMarkers::InitAllMotionMarkers(std::vector<Markers> InitMarkerSet)
 		}
 	}
 }
-
 
 bool ZWorldMarkers::CornerMarkerTest(unsigned int& check)
 {
@@ -289,7 +287,6 @@ bool ZWorldMarkers::CheckForMovedMarkerPosition(std::vector<Markers>& NewPos)
 
 	return AnythingNew;
 }
-
 
 bool ZWorldMarkers::CompareMarkers(Markers& Mark, WorldMarker& Ref)
 {

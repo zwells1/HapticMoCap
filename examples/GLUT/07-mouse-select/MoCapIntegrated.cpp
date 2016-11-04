@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
 	double ScaleFloor = 2.0;
 	cVector3d TL = cVector3d(-ScaleFloor, ScaleFloor, 0.0);
 	cVector3d BR = cVector3d(ScaleFloor, -ScaleFloor, 0.0);
-	cVector3d Origin = cVector3d(1.0, 1.0, -0.1);
+	cVector3d Origin = cVector3d(1.0, 1.0, -0.15);
 	//create a box based off points passed in from the corners of the table
 
 	// create a mesh
