@@ -54,6 +54,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "WorldMarkers.hpp"
 
 #include <mutex>
+#include <sstream>
 //------------------------------------------------------------------------------
 using namespace chai3d;
 using namespace std;
@@ -115,7 +116,7 @@ cGenericHapticDevicePtr hapticDevice;
 cToolCursor* tool;
 
 // a label to display the rate [Hz] at which the simulation is running
-cLabel* labelHapticRate;
+cLabel* labelHud;
 
 //object that is moved around
 cMesh* sphere = new cMesh();
@@ -151,8 +152,6 @@ int windowH;
 int windowPosX;
 int windowPosY;
 
-
-
 //Wifi hook up
 boost::asio::io_service io_service;
 ZWifi WifiHook(io_service, "192.168.0.194", "123");
@@ -160,12 +159,17 @@ ZWifi WifiHook(io_service, "192.168.0.194", "123");
 //Filter globals
 ZFilter Filter;
 
+//add to filter later
+int LowerFreqCutOffValue = 100;
+int UpperFreqCutOffValue = 500;
+
 //mutex for when the objects change
 std::mutex mObjectOnMapChange;
 
 //all other objects that are on the map
 ZObjects AllObjects;
 
+std::string HudString;
 //------------------------------------------------------------------------------
 // DECLARED FUNCTIONS
 //------------------------------------------------------------------------------
@@ -215,6 +219,12 @@ void addSphere();
 void removeSphere();
 void ReadValsWTF();
 
+//add to filter later
+int GetLowerFreqCutOff();
+void SetLowerFreqCutOff(int NewVal);
+int GetUpperFreqCutOff();
+void SetUpperFreqCutOff(int NewVal);
+
 int main(int argc, char* argv[])
 {
 	//--------------------------------------------------------------------------
@@ -244,7 +254,11 @@ int main(int argc, char* argv[])
 	cout << "[q] moves +Z" << endl;
 	cout << "[e] moves -Z" << endl;
 
-	cout << "[p] & [l] are the flavor of the day!" << endl;
+	cout << " [p] upper freq adjustment inc by 5Hz" << endl;
+	cout << " [l] upper freq adjustment dec by 5Hz" << endl;
+	
+	cout << " [o] upper freq adjustment inc by 5Hz" << endl;
+	cout << " [k] upper freq adjustment dec by 5Hz" << endl;
 
 	cout << endl << endl;
 
@@ -445,9 +459,9 @@ int main(int argc, char* argv[])
 	cFont *font = NEW_CFONTCALIBRI20();
 
 	// create a label to display the haptic rate of the simulation
-	labelHapticRate = new cLabel(font);
-	labelHapticRate->m_fontColor.setBlack();
-	camera->m_frontLayer->addChild(labelHapticRate);
+	labelHud = new cLabel(font);
+	labelHud->m_fontColor.setBlack();
+	camera->m_frontLayer->addChild(labelHud);
 
 	// create a background
 	cBackground* background = new cBackground();
@@ -603,11 +617,6 @@ void keySelect(unsigned char key, int x, int y)
 		sphere->setLocalPos(0.0, 0.1, 0.0);
 	}
 
-	if (key == 'o')
-	{
-		sphere->setLocalPos(0, 0, 0);
-	}
-
 	//right
 	if (key == 'q')
 	{
@@ -623,20 +632,35 @@ void keySelect(unsigned char key, int x, int y)
 		sphere->translate(0.0, 0.0, -1 * adjustSpacing);
 	}
 
-	//
+	//change lower freq up by 5
+	if (key == 'o')
+	{
+		SetLowerFreqCutOff(LowerFreqCutOffValue + 5);
+	}
+
+	//change lower freq down by 5
+	if (key == 'k')
+	{
+		SetLowerFreqCutOff(LowerFreqCutOffValue - 5);
+	}
+
+	//change lower freq up by 5
 	if (key == 'p')
 	{
 		//WifiHook.send("5");
-		addSphere();
-		std::cout << "glob: " << sphere->getGlobalPos() << std::endl;
-		std::cout << "local: " << sphere->getLocalPos() << std::endl;
+		//addSphere();
+		//std::cout << "glob: " << sphere->getGlobalPos() << std::endl;
+		//std::cout << "local: " << sphere->getLocalPos() << std::endl;
+		SetUpperFreqCutOff(UpperFreqCutOffValue + 5);
 	}
 
+	//change upper freq down by 5
 	if (key == 'l')
 	{
 		//WifiHook.send("0");
 		//removeSphere();
-		ReadValsWTF();
+		//ReadValsWTF();
+		SetUpperFreqCutOff(UpperFreqCutOffValue - 5);
 	}
 
 }
@@ -679,10 +703,16 @@ void updateGraphics(void)
 	/////////////////////////////////////////////////////////////////////
 
 	// update haptic rate data
-	labelHapticRate->setText(cStr(frequencyCounter.getFrequency(), 0) + " Hz");
+
+	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
+		+ "lower cutoff freq " + std::to_string(GetLowerFreqCutOff()) + "Hz "
+		+ "upper cutoff freq " + std::to_string(GetUpperFreqCutOff()) + "Hz";
+
+	labelHud->setText(HudString);
 
 	// update position of label
-	labelHapticRate->setLocalPos((int)(0.5 * (windowW - labelHapticRate->getWidth())), 15);
+	labelHud->setLocalPos(
+		(int)(0.5 * (windowW - labelHud->getWidth())), 15);
 
 	/////////////////////////////////////////////////////////////////////
 	// USER DEFINED OBJECTS
@@ -1064,4 +1094,26 @@ void removeSphere()
 	world->removeChild(sphere);
 	delete sphere;
 	sphere = nullptr;
+}
+
+
+//add to filter later
+int GetLowerFreqCutOff()
+{
+	return LowerFreqCutOffValue;
+}
+
+void SetLowerFreqCutOff(int NewVal)
+{
+	LowerFreqCutOffValue = NewVal;
+}
+
+int GetUpperFreqCutOff()
+{
+	return UpperFreqCutOffValue;
+}
+
+void SetUpperFreqCutOff(int NewVal)
+{
+	UpperFreqCutOffValue = NewVal;
 }
