@@ -24,6 +24,9 @@ ZFilter::ZFilter()
 	//set filter to have no effect in the beginning
 	Filter.Amplitude = 0;
 	Filter.PhaseShift = 0;
+
+	Filter.LowerFreqCutOffValue = 100;
+	Filter.UpperFreqCutOffValue = 500;
 }
 
 //destructor
@@ -44,66 +47,33 @@ std::string ZFilter::GetFilterAmplitude()
 	return AmpString;
 }
 
-//remove after debugging
-#include <iostream>
-
-bool ZFilter::FilterSolve(chai3d::cVector3d& currentLocation)
+int ZFilter::GetLowerFreqCutOff()
 {
-	//take in x,y,z (z = 0) and determine what the filter should produce
-	static const chai3d::cVector3d originOfObj = chai3d::cVector3d(1.0, 1.0, 0.0);
-
-	const static double ScaleFloor = 0.5;
-	static const chai3d::cVector3d TL = chai3d::cVector3d(
-		-ScaleFloor + originOfObj.x(),
-		ScaleFloor + originOfObj.y(),
-		0.0);
-	static const chai3d::cVector3d BR = chai3d::cVector3d(
-		ScaleFloor + originOfObj.x(),
-		-ScaleFloor + originOfObj.y(),
-		0.0);
-
-	//bounds defined by user. will be set more dynmaically later
-	static const double scale = 1.0;
-	
-	//top wall
-	if (currentLocation.z() < TL.y() &&
-		currentLocation.z() > BR.y() &&
-		currentLocation.x() < BR.x() &&
-		currentLocation.x() > TL.x())
-	{
-		//std::cout << "top wall" << std::endl;
-	}
-	else if(
-		currentLocation.x() < 1.0 &&
-		currentLocation.x() > TL.x() &&
-		currentLocation.z() < 1.14 &&
-		currentLocation.z() > -0.15 ) // right wall
-	{
-		//std::cout << "right wall" << std::endl;
-		return true;
-	}
-	else if(
-		currentLocation.x() > TL.x() &&
-		currentLocation.x() < BR.x() &&
-		currentLocation.z() < TL.y() &&
-		currentLocation.z() > BR.y()) //left wall
-	{ 
-	//	std::cout << "left wall" << std::endl;
-	}
-	else if (
-		currentLocation.x() < TL.x() &&
-		currentLocation.x() > BR.x() &&
-		currentLocation.z() > BR.y() &&
-		currentLocation.z() < TL.y()) //bottom wall
-	{
-	//	std::cout << "bottom wall" << std::endl;
-	}
-	else
-	{
-		Filter.Amplitude = 0;
-		return false;
-	}
-
+	return Filter.LowerFreqCutOffValue;
 }
 
+void ZFilter::SetLowerFreqCutOff(int NewVal)
+{
+	Filter.LowerFreqCutOffValue = NewVal;
+}
+
+void ZFilter::AdjustLowerFreqCutOff(int Adjust)
+{
+	Filter.LowerFreqCutOffValue += Adjust;
+}
+
+int ZFilter::GetUpperFreqCutOff()
+{
+	return Filter.UpperFreqCutOffValue;
+}
+
+void ZFilter::SetUpperFreqCutOff(int NewVal)
+{
+	Filter.UpperFreqCutOffValue = NewVal;
+}
+
+void ZFilter::AdjustUpperFreqCutOff(int Adjust)
+{
+	Filter.UpperFreqCutOffValue += Adjust;
+}
 

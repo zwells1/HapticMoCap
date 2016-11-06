@@ -159,10 +159,6 @@ ZWifi WifiHook(io_service, "192.168.0.194", "123");
 //Filter globals
 ZFilter Filter;
 
-//add to filter later
-int LowerFreqCutOffValue = 100;
-int UpperFreqCutOffValue = 500;
-
 //mutex for when the objects change
 std::mutex mObjectOnMapChange;
 
@@ -219,12 +215,6 @@ void addSphere();
 void removeSphere();
 void ReadValsWTF();
 
-//add to filter later
-int GetLowerFreqCutOff();
-void SetLowerFreqCutOff(int NewVal);
-int GetUpperFreqCutOff();
-void SetUpperFreqCutOff(int NewVal);
-
 int main(int argc, char* argv[])
 {
 	//--------------------------------------------------------------------------
@@ -254,8 +244,8 @@ int main(int argc, char* argv[])
 	cout << "[q] moves +Z" << endl;
 	cout << "[e] moves -Z" << endl;
 
-	cout << " [p] upper freq adjustment inc by 5Hz" << endl;
-	cout << " [l] upper freq adjustment dec by 5Hz" << endl;
+	cout << " [p] lower freq adjustment inc by 5Hz" << endl;
+	cout << " [l] lower freq adjustment dec by 5Hz" << endl;
 	
 	cout << " [o] upper freq adjustment inc by 5Hz" << endl;
 	cout << " [k] upper freq adjustment dec by 5Hz" << endl;
@@ -481,6 +471,8 @@ int main(int argc, char* argv[])
 	AllMarkers = new ZWorldMarkers();
 
 	InitMarkers();
+
+
 	
 	{
 		cVector3d Dim1 = cVector3d(0.3, 0.3, 0.1);
@@ -635,13 +627,13 @@ void keySelect(unsigned char key, int x, int y)
 	//change lower freq up by 5
 	if (key == 'o')
 	{
-		SetLowerFreqCutOff(LowerFreqCutOffValue + 5);
+		Filter.AdjustLowerFreqCutOff(5);
 	}
 
 	//change lower freq down by 5
 	if (key == 'k')
 	{
-		SetLowerFreqCutOff(LowerFreqCutOffValue - 5);
+		Filter.AdjustLowerFreqCutOff(-5);
 	}
 
 	//change lower freq up by 5
@@ -651,7 +643,7 @@ void keySelect(unsigned char key, int x, int y)
 		//addSphere();
 		//std::cout << "glob: " << sphere->getGlobalPos() << std::endl;
 		//std::cout << "local: " << sphere->getLocalPos() << std::endl;
-		SetUpperFreqCutOff(UpperFreqCutOffValue + 5);
+		Filter.AdjustUpperFreqCutOff(5);
 	}
 
 	//change upper freq down by 5
@@ -660,7 +652,7 @@ void keySelect(unsigned char key, int x, int y)
 		//WifiHook.send("0");
 		//removeSphere();
 		//ReadValsWTF();
-		SetUpperFreqCutOff(UpperFreqCutOffValue - 5);
+		Filter.AdjustUpperFreqCutOff(-5);
 	}
 
 }
@@ -705,8 +697,8 @@ void updateGraphics(void)
 	// update haptic rate data
 
 	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
-		+ "lower cutoff freq " + std::to_string(GetLowerFreqCutOff()) + "Hz "
-		+ "upper cutoff freq " + std::to_string(GetUpperFreqCutOff()) + "Hz";
+		+ "lower cutoff freq " + std::to_string(Filter.GetLowerFreqCutOff()) + "Hz "
+		+ "upper cutoff freq " + std::to_string(Filter.GetUpperFreqCutOff()) + "Hz";
 
 	labelHud->setText(HudString);
 
@@ -1094,26 +1086,4 @@ void removeSphere()
 	world->removeChild(sphere);
 	delete sphere;
 	sphere = nullptr;
-}
-
-
-//add to filter later
-int GetLowerFreqCutOff()
-{
-	return LowerFreqCutOffValue;
-}
-
-void SetLowerFreqCutOff(int NewVal)
-{
-	LowerFreqCutOffValue = NewVal;
-}
-
-int GetUpperFreqCutOff()
-{
-	return UpperFreqCutOffValue;
-}
-
-void SetUpperFreqCutOff(int NewVal)
-{
-	UpperFreqCutOffValue = NewVal;
 }

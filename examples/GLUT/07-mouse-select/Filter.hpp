@@ -23,6 +23,8 @@ struct FilterVars
 {
 	short Amplitude;
 	short PhaseShift;
+	int LowerFreqCutOffValue;
+	int UpperFreqCutOffValue;
 
 };
 
@@ -55,7 +57,17 @@ public:
 
 	std::string GetFilterAmplitude();
 
+	int GetLowerFreqCutOff();
+	
+	void SetLowerFreqCutOff(int NewVal);
+	
+	void AdjustLowerFreqCutOff(int Adjust);
 
+	int GetUpperFreqCutOff();
+	
+	void SetUpperFreqCutOff(int NewVal);
+
+	void AdjustUpperFreqCutOff(int Adjust);
 
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:
