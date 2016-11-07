@@ -879,8 +879,6 @@ void InitMarkers()
 
 	OldPos = MyHand.GetPositionOfMarkers();
 
-	AllMarkers->InitFrame(OldPos);
-
 	AllMarkers->InitAllMotionMarkers(OldPos);
 
 	//add all markers to the world
@@ -910,7 +908,7 @@ void CheckMarkers()
 		//add new markers to the world
 		for (auto& Ref : AllMarkers->GetReferenceMarkers())
 		{
-			if (Ref.AddToWorld == true && Ref.ignore == false)
+			if (Ref.AddToWorld == true)
 			{
 				world->addChild(Ref.Marker);
 				Ref.AddToWorld = false;
@@ -930,7 +928,7 @@ void CheckMarkers()
 					if (New.MarkerNumber == Ref.MarkerNumber) found = true;
 				}
 			//if not found remove
-				if (found != true && Ref.ignore == false)
+				if (found != true)
 				{
 					world->removeChild(Ref.Marker);
 					//erase that element from array
@@ -950,7 +948,7 @@ void UpdateMarkerLocations()
 {
 	for (auto& curr : AllMarkers->GetReferenceMarkers())
 	{
-		if (curr.ReadyForUpdate == true && curr.ignore == false)
+		if (curr.ReadyForUpdate == true)
 		{
 			//std::cout <<"before "<< curr.Marker->getLocalPos() << std::endl;
 			//cVector3d OriginOffset = AllMarkers->GetOrigin();
@@ -980,10 +978,6 @@ void SwapMarker(WorldMarker& Mark)
 /////////////////////////////////////////////////////////////////////////
 void ReadAllLocalPositions()
 {
-	cVector3d O = AllMarkers->GetOrigin();
-
-	std::cout << O.x() << " " << O.y() << " " << O.z() << std::endl;
-
 	for (auto& curr : AllMarkers->GetReferenceMarkers())
 	{
 		std::cout << "local: " << curr.MarkerNumber << " " << curr.Marker->getLocalPos() << std::endl;
@@ -1011,11 +1005,9 @@ void addSphere()
 	double objY = test1.Y;
 	double objZ = test1.Z;
 
-	cVector3d OriginOffset = AllMarkers->GetOrigin();
-
-	double X = objX - OriginOffset.x();
-	double Y = objY - OriginOffset.y();
-	double Z = objZ - OriginOffset.z();
+	double X = objX;
+	double Y = objY;
+	double Z = objZ;
 
 
 

@@ -31,7 +31,6 @@ struct WorldMarker
 {
 	cMesh* Marker;
 	unsigned int MarkerNumber = 0;
-	bool ignore = false;
 	bool ReadyForUpdate = false;
 	bool AddToWorld = false;
 	double X = 0.0;
@@ -66,8 +65,6 @@ public:
 
 	size_t NumberOfWorldMarkers();
 
-	cVector3d GetOrigin();
-
 	void SetEraseMarker(bool Value);
 
 	bool GetEraseMarker();
@@ -86,9 +83,6 @@ public:
 private:
 
 	bool CompareMarkers(Markers& Mark, WorldMarker& Ref);
-
-	void SetOrigin(cVector3d& Offset);
-
 	
 	//-------------------------------------------------------------------------
 	// PRIVATE MEMBERS:
