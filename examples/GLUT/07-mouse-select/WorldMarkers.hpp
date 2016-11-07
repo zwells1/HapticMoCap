@@ -89,9 +89,7 @@ private:
 
 	int FindBottomLeftCorner(std::vector<Markers>& Marks);
 	
-	int FindTopLeftCorner(std::vector<Markers>& Marks);
-	
-	void ZWorldMarkers::MakeCornersPermanent();
+	void ZWorldMarkers::MakeCornerPermanent();
 
 	bool CompareMarkers(Markers& Mark, WorldMarker& Ref);
 

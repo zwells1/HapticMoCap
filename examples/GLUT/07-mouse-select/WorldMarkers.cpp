@@ -50,43 +50,10 @@ int ZWorldMarkers::FindBottomLeftCorner(std::vector<Markers>& Marks)
 	return tempMarkerNumber;
 }
 
-int ZWorldMarkers::FindTopLeftCorner(std::vector<Markers>& Marks)
-{
-	unsigned int tempMarkerNumber;
-	unsigned int VectorIndice;
-	//set very small so that we can always find a larger num
-	float largestZ = std::numeric_limits<double>::min();
-
-	if (Marks.size() == 0)
-		std::cerr <<
-		"World Markers:: findTLCorner error"
-		<< std::endl;
-	
-	int i = -1;
-	for (auto curr : Marks)
-	{
-		i++;
-		if (curr.ZPos >= largestZ)
-		{
-			largestZ = curr.ZPos;
-			tempMarkerNumber = curr.MarkerNumber;
-			VectorIndice = i;
-		}
-	}
-
-	WorldMarker temp;
-	temp.MarkerNumber = tempMarkerNumber;
-	//create each mesh object here
-	CreateMarkers(Marks[VectorIndice], temp);
-
-	return tempMarkerNumber;
-}
-
 //constructor
 ZWorldMarkers::ZWorldMarkers()
 {
 	mBL = -1;
-	mTL = -1;
 }
 
 //destructor
@@ -101,12 +68,9 @@ void ZWorldMarkers::InitFrame(std::vector<Markers> InitMarkerSet)
 	//find the BL corner (smallest X, Z value)
 	mBL = FindBottomLeftCorner(InitMarkerSet);
 
-	//find the TL corner (largest Z value)
-	mTL = FindTopLeftCorner(InitMarkerSet);
-
 	//sanity check make sure i dont have to points that are the deemed
 	//two seperate corners
-	if (mBL == mTL)
+	if (mBL == -1)
 	{
 		std::cout <<
 			"Corners claim to be the same corner" <<
@@ -114,7 +78,7 @@ void ZWorldMarkers::InitFrame(std::vector<Markers> InitMarkerSet)
 		exit(1);
 	}
 
-	MakeCornersPermanent();
+	MakeCornerPermanent();
 }
 
 //add markers to the ReferenceMarkers
@@ -161,9 +125,9 @@ std::vector<WorldMarker> ZWorldMarkers::GetReferenceMarkers()
 	return ReferenceMarkers;
 }
 
-void ZWorldMarkers::MakeCornersPermanent()
+void ZWorldMarkers::MakeCornerPermanent()
 {
-	if(ReferenceMarkers.size() != 2)
+	if(ReferenceMarkers.size() != 1)
 	{
 		std::cout << "ZWorldMarkers::MakeCornersPermanent is being used"
 			<< "improperly there are "
@@ -195,7 +159,7 @@ void ZWorldMarkers::InitAllMotionMarkers(std::vector<Markers> InitMarkerSet)
 
 bool ZWorldMarkers::CornerMarkerTest(unsigned int& check)
 {
-	if (check != mTL && check != mBL)
+	if (check != mBL)
 	{
 		return true;
 	}
