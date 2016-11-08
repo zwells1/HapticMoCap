@@ -826,7 +826,6 @@ void updateHaptics(void)
 			}
 		}
 
-
 		//
 		// STATE 2:
 		// Selection mode - operator maintains user switch enabled and moves object
@@ -951,7 +950,7 @@ void CheckMarkers()
 				{
 					if (New.MarkerNumber == Ref.MarkerNumber) found = true;
 				}
-			//if not found remove
+			//if marker not found remove
 				if (found != true && Ref.ignore == false)
 				{
 					world->removeChild(Ref.Marker);

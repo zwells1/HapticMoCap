@@ -297,12 +297,13 @@ void ZWorldMarkers::SwapMarker(WorldMarker& Replace)
 		i++;
 		if (Replace.MarkerNumber == Ref.MarkerNumber)
 		{
-			delete Ref.Marker;
-			ReferenceMarkers.erase(ReferenceMarkers.begin() + i);
 			Markers temp;
 			temp.XPos = Ref.X;
 			temp.YPos = Ref.Y;
 			temp.ZPos = Ref.Z;
+			//remove old marker must happen after pulling data from it
+			delete Ref.Marker;
+			ReferenceMarkers.erase(ReferenceMarkers.begin() + i);
 			CreateMarkers(temp, Replace);
 			break;
 		}
