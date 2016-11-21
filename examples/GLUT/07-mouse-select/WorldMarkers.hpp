@@ -31,7 +31,6 @@ struct WorldMarker
 {
 	cMesh* Marker;
 	unsigned int MarkerNumber = 0;
-	bool ignore = false;
 	bool ReadyForUpdate = false;
 	bool AddToWorld = false;
 	double X = 0.0;
@@ -91,6 +90,6 @@ private:
 private:
 
 	std::vector<WorldMarker> ReferenceMarkers;
-	
+
 };
 #endif

@@ -22,20 +22,13 @@ void ZWorldMarkers::CreateMarkers(Markers& obj, WorldMarker& SetMarker)
 {
 	//create a unique mesh name
 	cMesh* mesh = new cMesh();
-
-	
-	//deal with the offset to pull everything back to the origin
-	double X = obj.XPos - OriginOffset.x();
-	double Y = obj.YPos - OriginOffset.y();
-	double Z = obj.ZPos - OriginOffset.z();
-	
 	
 	// build mesh using a cylinder primitive
 	cCreateSphere(mesh,
 		0.05,
 		36,
 		36,
-		cVector3d(X, Z, Y),
+		cVector3d(obj.XPos, obj.ZPos, obj.YPos),
 		cMatrix3d(cDegToRad(0), cDegToRad(0), cDegToRad(0), C_EULER_ORDER_XYZ)
 	);
 
@@ -52,7 +45,7 @@ void ZWorldMarkers::CreateMarkers(Markers& obj, WorldMarker& SetMarker)
 	SetMarker.Y = obj.YPos;
 	SetMarker.Z = obj.ZPos;
 
-	mesh->setLocalPos(X, Z, Y);
+	mesh->setLocalPos(obj.XPos, obj.ZPos, obj.YPos);
 		
 	ReferenceMarkers.push_back(SetMarker);
 }
@@ -67,12 +60,9 @@ void ZWorldMarkers::InitAllMotionMarkers(std::vector<Markers> InitMarkerSet)
 {
 	for (auto curr : InitMarkerSet)
 	{
-		if (CornerMarkerTest(curr.MarkerNumber))
-		{
-			WorldMarker temp;
-			temp.MarkerNumber = curr.MarkerNumber;
-			CreateMarkers(curr, temp);
-		}
+		WorldMarker temp;
+		temp.MarkerNumber = curr.MarkerNumber;
+		CreateMarkers(curr, temp);	
 	}
 }
 
@@ -113,8 +103,7 @@ bool ZWorldMarkers::CheckForMovedMarkerPosition(std::vector<Markers>& NewPos)
 			CreateMarkers(New, NewWorldMarker);
 		}
 	}
-
-
+	
 	return AnythingNew;
 }
 
@@ -136,7 +125,6 @@ size_t ZWorldMarkers::NumberOfWorldMarkers()
 
 void ZWorldMarkers::EraseMarker(int& index)
 {
-	
 	if (index < ReferenceMarkers.size())
 	{
 		delete ReferenceMarkers[index].Marker;
@@ -148,6 +136,7 @@ void ZWorldMarkers::EraseMarker(int& index)
 		std::cout << "error out of bounds could not delete obj"<< std::endl;
 	}
 }
+
 
 
 void ZWorldMarkers::SwapMarker(WorldMarker& Replace)
