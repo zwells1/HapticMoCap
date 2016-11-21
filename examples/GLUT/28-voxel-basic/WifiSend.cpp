@@ -39,11 +39,13 @@ int main()
 	boost::asio::io_service io_service;
 	UDPClient client(io_service, "192.168.0.194", "123");
 	/*
-	int nint = 5;
+	std::string x;
+	std::stringstream ss;
+	int nint = 4;
 	
-	int LowFreq = 325;
-	int HighFreq = 1000;
-	char bytes [5];
+	int LowFreq = 322;
+	int HighFreq = 922;
+	char bytes [6];
 	
 	bytes[0] = nint & 0x000000ff;
 	
@@ -55,26 +57,29 @@ int main()
 
 	bytes[4] = HighFreq & 0x000000ff;
 
-	std::string x;
-	std::stringstream ss;
 	ss << bytes;
 	ss >> x;
+	std::cout << x.size() << std::endl;
 	client.send(x);
 	*/
+	
 	std::string x;
 	std::stringstream ss;
-	char tests[50];
+	char tokens[1];
 
-	int nint = 1;
+	int nint = 5;
 
-	for (int i = 0; i < 50; i++)
+	int i;
+	char y = 15;
+	for (i = 0; i < 1; i++)
 	{
-		tests[i] = nint & 0x000000ff;
-		++nint;
+		//tokens[i] = (char)(nint & 0x000000ff);
+		tokens[i] = y;
+		nint++;
 	}
-	ss << tests;
-	ss >> x;
-	client.send(x);
-
-
+	//ss << tokens;
+	//ss >> x;
+	//std::cout << tokens.size() << std::endl;
+	client.send(tokens);
+	
 }
