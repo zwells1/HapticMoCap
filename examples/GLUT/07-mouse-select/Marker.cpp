@@ -56,9 +56,6 @@ std::vector<Markers> ZMarker::UpdatePositionOfMarkers()
 
 	if (PrevNumofMarkers != NumOfMarkers)
 	{
-		std::cerr <<
-			" Marker.cpp cant account for a different number of markers yet"
-			<< std::endl;
 		DiffNumMarkers(true);
 	}
 	
