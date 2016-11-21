@@ -106,15 +106,6 @@ cCamera* camera;
 // a light source to illuminate the objects in the world
 cSpotLight *light;
 
-// a haptic device handler
-cHapticDeviceHandler* handler;
-
-// a pointer to the current haptic device
-cGenericHapticDevicePtr hapticDevice;
-
-// a virtual tool representing the haptic device in the scene
-cToolCursor* tool;
-
 // a label to display the rate [Hz] at which the simulation is running
 cLabel* labelHud;
 
@@ -356,65 +347,10 @@ int main(int argc, char* argv[])
 	// set light cone half angle
 	light->setCutOffAngleDeg(45);
 
-	//--------------------------------------------------------------------------
-	// HAPTIC DEVICES / TOOLS
-	//--------------------------------------------------------------------------
-
-	// create a haptic device handler
-	handler = new cHapticDeviceHandler();
-
-	// get access to the first available haptic device
-	handler->getDevice(hapticDevice, 0);
-
-	// retrieve information about the current haptic device
-	cHapticDeviceInfo hapticDeviceInfo = hapticDevice->getSpecifications();
-
-	// if the haptic devices carries a gripper, enable it to behave like a user switch
-	hapticDevice->setEnableGripperUserSwitch(true);
-
-	// create a tool (cursor) and insert into the world
-	tool = new cToolCursor(world);
-	world->addChild(tool);
-
-	// connect the haptic device to the tool
-	tool->setHapticDevice(hapticDevice);
-
-	// map the physical workspace of the haptic device to a larger virtual workspace.
-	tool->setWorkspaceRadius(5.0);
-
-	// define the radius of the tool (sphere)
-	double toolRadius = 0.05;
-
-	// define a radius for the tool
-	tool->setRadius(toolRadius);
-
-	// hide the device sphere. only show proxy.
-	tool->setShowContactPoints(true, false);
-
-	// enable if objects in the scene are going to rotate of translate
-	// or possibly collide against the tool. If the environment
-	// is entirely static, you can set this parameter to "false"
-	tool->enableDynamicObjects(true);
-
-	// haptic forces are enabled only if small forces are first sent to the device;
-	// this mode avoids the force spike that occurs when the application starts when
-	// the tool is located inside an object for instance.
-	tool->setWaitForSmallForce(true);
-
-	// start the haptic tool
-	tool->start();
 
 	//--------------------------------------------------------------------------
 	// CREATE OBJECTS
 	//--------------------------------------------------------------------------
-
-	// read the scale factor between the physical workspace of the haptic
-	// device and the virtual workspace defined for the tool
-	double workspaceScaleFactor = tool->getWorkspaceScaleFactor();
-
-	// stiffness properties
-	maxStiffness = hapticDeviceInfo.m_maxLinearStiffness / workspaceScaleFactor;
-
 
 	/////////////////////////////////////////////////////////////////////////
 	// BASE
@@ -437,9 +373,6 @@ int main(int argc, char* argv[])
 	PlaceAndCenterFloor(base, TL, BR, Origin);
 
 	base->m_material->setStiffness(0.5 * maxStiffness);
-
-	// build collision detection tree
-	base->createAABBCollisionDetector(toolRadius);
 	
 	//--------------------------------------------------------------------------
 	// WIDGETS
@@ -667,9 +600,6 @@ void close(void)
 
 	// wait for graphics and haptics loops to terminate
 	while (!simulationFinished) { cSleepMs(100); }
-
-	// close haptic device
-	tool->stop();
 }
 
 //------------------------------------------------------------------------------
@@ -711,7 +641,7 @@ void updateGraphics(void)
 	/////////////////////////////////////////////////////////////////////
 	{
 		std::lock_guard<std::mutex> guard(mObjectOnMapChange);
-			CheckMarkers();
+		CheckMarkers();
 	}
 	/////////////////////////////////////////////////////////////////////
 	// RENDER SCENE
@@ -721,7 +651,15 @@ void updateGraphics(void)
 	//world->updateShadowMaps(false, mirroredDisplay);
 
 	// render world
-	camera->renderView(windowW, windowH);
+
+	try
+	{
+		camera->renderView(windowW, windowH);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "camera->renderView() failed" << std::endl;
+	}
 
 	// swap buffers actually updates the visuals of the object
 	glutSwapBuffers();
@@ -784,87 +722,7 @@ void updateHaptics(void)
 				WifiHook.send("0");
 				#endif
 			}
-		
 
-		/////////////////////////////////////////////////////////////////////////
-		// HAPTIC MANIPULATION
-		/////////////////////////////////////////////////////////////////////////
-
-		// compute transformation from world to tool (haptic device)
-		cTransform world_T_tool = tool->getDeviceGlobalTransform();
-		
-		// get status of user switch
-		bool button = tool->getUserSwitch(0);
-
-		//
-		// STATE 1:
-		// Idle mode - user presses the user switch
-		//
-		if ((state == IDLE) && (button == true))
-		{
-			// check if at least one contact has occurred
-			if (tool->m_hapticPoint->getNumCollisionEvents() > 0)
-			{
-				// get contact event
-				cCollisionEvent* collisionEvent = tool->m_hapticPoint->getCollisionEvent(0);
-
-				// get object from contact event
-				object = collisionEvent->m_object;
-
-				// get transformation from object
-				cTransform world_T_object = object->getGlobalTransform();
-
-				// compute inverse transformation from contact point to object
-				cTransform tool_T_world = world_T_tool;
-				tool_T_world.invert();
-
-				// store current transformation tool
-				tool_T_object = tool_T_world * world_T_object;
-
-				// update state
-				state = SELECTION;
-			}
-		}
-
-
-		//
-		// STATE 2:
-		// Selection mode - operator maintains user switch enabled and moves object
-		//
-		else if ((state == SELECTION) && (button == true))
-		{
-			// compute new tranformation of object in global coordinates
-			cTransform world_T_object = world_T_tool * tool_T_object;
-
-			// compute new tranformation of object in local coordinates
-			cTransform parent_T_world = object->getParent()->getLocalTransform();
-			parent_T_world.invert();
-			cTransform parent_T_object = parent_T_world * world_T_object;
-
-			// assign new local transformation to object
-			object->setLocalTransform(parent_T_object);
-
-			// set zero forces when manipulating objects
-			tool->setDeviceGlobalForce(0.0, 0.0, 0.0);
-		}
-
-		//
-		// STATE 3:
-		// Finalize Selection mode - operator releases user switch.
-		//
-		else
-		{
-			//this will be where I can update the persons position zzz
-			state = IDLE;
-		}
-
-
-		/////////////////////////////////////////////////////////////////////////
-		// FINALIZE
-		/////////////////////////////////////////////////////////////////////////
-
-		// send forces to haptic device
-		tool->applyToDevice();
 	}
 
 	// exit haptics thread
