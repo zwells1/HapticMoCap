@@ -6,54 +6,9 @@ Tested With : Chai version 3.1.1
 
 #include "WorldMarkers.hpp"
 
-//find the origin
-int ZWorldMarkers::FindBottomLeftCorner(std::vector<Markers>& Marks)
-{
-	unsigned int tempMarkerNumber;
-	unsigned int VectorIndice;
-	//set very large so that we can always find a larger smaller num
-	float lowestX = std::numeric_limits<double>::max();
-	float lowestZ = std::numeric_limits<double>::max();
-	
-	if (Marks.size() == 0) 
-		std::cerr <<
-		"World Markers:: findBLCorner error"
-		<< std::endl;
-	
-	int i = -1;
-	for (auto curr : Marks)
-	{
-		i++;
-		if (curr.XPos <= lowestX &&
-			curr.ZPos <= lowestZ) 
-		{
-				lowestX = curr.XPos;
-				lowestZ = curr.ZPos;
-				tempMarkerNumber = curr.MarkerNumber;
-				VectorIndice = i;
-		}
-	}
-	
-	WorldMarker temp;
-	
-	temp.MarkerNumber = tempMarkerNumber;
-
-	cVector3d Offset(
-		Marks[VectorIndice].XPos,
-		Marks[VectorIndice].YPos,
-		Marks[VectorIndice].ZPos);
-
-	SetOrigin(Offset);
-
-	CreateMarkers(Marks[VectorIndice], temp);
-
-	return tempMarkerNumber;
-}
-
 //constructor
 ZWorldMarkers::ZWorldMarkers()
 {
-	mBL = -1;
 }
 
 //destructor
@@ -61,25 +16,6 @@ ZWorldMarkers::~ZWorldMarkers()
 {
 }
 
-
-void ZWorldMarkers::InitFrame(std::vector<Markers> InitMarkerSet)
-{
-		
-	//find the BL corner (smallest X, Z value)
-	mBL = FindBottomLeftCorner(InitMarkerSet);
-
-	//sanity check make sure i dont have to points that are the deemed
-	//two seperate corners
-	if (mBL == -1)
-	{
-		std::cout <<
-			"Corners claim to be the same corner" <<
-			std::endl;
-		exit(1);
-	}
-
-	MakeCornerPermanent();
-}
 
 //add markers to the ReferenceMarkers
 void ZWorldMarkers::CreateMarkers(Markers& obj, WorldMarker& SetMarker)
@@ -126,24 +62,6 @@ std::vector<WorldMarker> ZWorldMarkers::GetReferenceMarkers()
 	return ReferenceMarkers;
 }
 
-void ZWorldMarkers::MakeCornerPermanent()
-{
-	if(ReferenceMarkers.size() != 1)
-	{
-		std::cout << "ZWorldMarkers::MakeCornersPermanent is being used"
-			<< "improperly there are "
-			<< ReferenceMarkers.size()
-			<< "there should only be a BL, TL, BR corners"
-			<< std::endl;
-		exit(1);
-	}
-	
-	for (auto &curr : ReferenceMarkers)
-	{
-		curr.ignore = true;
-	}
-}
-
 //initialize the rest of the markers that are not the frame
 void ZWorldMarkers::InitAllMotionMarkers(std::vector<Markers> InitMarkerSet)
 {
@@ -155,18 +73,6 @@ void ZWorldMarkers::InitAllMotionMarkers(std::vector<Markers> InitMarkerSet)
 			temp.MarkerNumber = curr.MarkerNumber;
 			CreateMarkers(curr, temp);
 		}
-	}
-}
-
-bool ZWorldMarkers::CornerMarkerTest(unsigned int& check)
-{
-	if (check != mBL)
-	{
-		return true;
-	}
-	else 
-	{
-		return false;
 	}
 }
 
@@ -227,15 +133,6 @@ size_t ZWorldMarkers::NumberOfWorldMarkers()
 	return ReferenceMarkers.size();
 }
 
-void ZWorldMarkers::SetOrigin(cVector3d& Offset)
-{
-	OriginOffset = Offset;
-}
-
-cVector3d ZWorldMarkers::GetOrigin()
-{
-	return OriginOffset;
-}
 
 void ZWorldMarkers::EraseMarker(int& index)
 {
