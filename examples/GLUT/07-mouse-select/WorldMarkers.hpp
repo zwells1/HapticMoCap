@@ -1,6 +1,5 @@
 #pragma once
 /*
-
 WorldMarkers is a helper class to MoCapIntegrated that will keep track off the
 Cmesh objects, cmesh marker objects, etc.
 

@@ -21,6 +21,7 @@ struct BiQuadFilterVars
 {
 	short Gain;
 	int FreqCutOffValue;
+	BiQuadType type;
 	float a0;
 	float a1;
 	float a2;
@@ -31,12 +32,14 @@ struct BiQuadFilterVars
 
 enum BiQuadType
 {
+	eMinValue  = 0, 
 	eLowPass   = 0,
 	eHighPass  = 1,
 	eBandPass  = 2,
 	eNotch     = 3,
 	eLowShelf  = 4,
-	eHighShelf = 5
+	eHighShelf = 5,
+	eMaxValue  = 5
 };
 
 class ZBiQuadFilter
@@ -60,6 +63,14 @@ public:
 
 	bool CheckForCutoffFreqChange(float newCutoffFreq);
 
+	void SetGain(short Gain);
+
+	std::string GetFilterType();
+
+	void AdjustFilterType(int Adjust);
+
+	void AdjustCutoffFreq(int Adjust);
+
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:
 	//--------------------------------------------------------------------------
@@ -71,8 +82,8 @@ private:
 	// PUBLIC MEMBERS:
 	//--------------------------------------------------------------------------
 public:
+	
 	BiQuadFilterVars Filter;
-
 
 };
 
