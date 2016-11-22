@@ -15,13 +15,13 @@ Tested With: Chai version 3.1.1
 #ifndef INCLUDE_BiQuadFilter
 #define INCLUDE_BiQuadFilter
 
-#include <math/CVector3d.h>
-
+#include <vector>
 struct BiQuadFilterVars
 {
-	short Gain;
+	short PeakGain;
 	int FreqCutOffValue;
-	BiQuadType type;
+	int type;
+	std::string TypeName;
 	float a0;
 	float a1;
 	float a2;
@@ -56,27 +56,31 @@ public:
 	~ZBiQuadFilter();
 
 
-	BiQuadFilterVars SolveForCoefficient(BiQuadType type, float Fc, float Q, float Fs);
+	BiQuadFilterVars SolveForCoefficient(int type, float Fc, float Q, float Fs, float Gain);
 
 	//default Q = 0.7071
-	BiQuadFilterVars SolveForCoefficient(BiQuadType type, float Fc, float Fs);
+	BiQuadFilterVars SolveForCoefficient(int type, float Fc, float Fs, float Gain);
 
 	bool CheckForCutoffFreqChange(float newCutoffFreq);
 
 	void SetGain(short Gain);
 
-	std::string GetFilterType();
-
 	void AdjustFilterType(int Adjust);
 
 	void AdjustCutoffFreq(int Adjust);
+
+	std::string GetBiQuadFilterType();
+
+	std::string SetBiQuadFilterType(int index);
 
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:
 	//--------------------------------------------------------------------------
 private:
 
+	void SetupFilterTypes();
 
+	void SolveBiQuadFilter(int type, float Fc, float Q, float Fs, float PeakGain);
 
 	//-------------------------------------------------------------------------
 	// PUBLIC MEMBERS:
@@ -84,6 +88,8 @@ private:
 public:
 	
 	BiQuadFilterVars Filter;
+	
+	std::vector<std::pair<int, std::string>> BiQuadType;
 
 };
 
