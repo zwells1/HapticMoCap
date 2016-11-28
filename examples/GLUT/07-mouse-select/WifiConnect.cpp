@@ -36,13 +36,29 @@ void ZWifi::SendPacket(
 	const std::string& AmplitudeOfObject,
 	const std::vector<std::string>& FiltersCoefficients)
 {
-	std::string msg = AmplitudeOfObject;
+ //header
+	std::string msg = "X";
+	msg += AmplitudeOfObject;
 	
 	for (int i = 0; i < FiltersCoefficients.size(); i++)
 	{
 		msg += ",";
-		msg += FiltersCoefficients[i];
+		msg += CropSignificantNumberOfDecimals(FiltersCoefficients[i]);
 	}
 
 	socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
+}
+
+std::string ZWifi::CropSignificantNumberOfDecimals(std::string input)
+{
+	const std::size_t NumberOfSigFigs = 3;
+	const std::size_t DecimalPt = 1;
+	const std::size_t Offset = NumberOfSigFigs + DecimalPt;
+	const std::string token = ".";
+	
+	std::size_t found = input.find(token);
+	
+	std::string crop = input.substr(0, found + Offset);
+
+	return crop;
 }
