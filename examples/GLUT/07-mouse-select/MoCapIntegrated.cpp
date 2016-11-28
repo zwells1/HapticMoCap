@@ -685,7 +685,6 @@ void updateHaptics(void)
 {
 	cMode state = IDLE;
 	cGenericObject* object = NULL;
-	cTransform tool_T_object;
 
 	// simulation in now running
 	simulationRunning = true;
@@ -907,10 +906,6 @@ void addSphere()
 	// set material properties
 	sphere->m_material->setPurpleBlueViolet();
 	sphere->m_material->setStiffness(0.5 * maxStiffness);
-
-	// build collision detection tree
-	double toolRadius = 0.05;
-	sphere->createAABBCollisionDetector(toolRadius);
 }
 
 void ReadValsWTF()
