@@ -33,7 +33,8 @@ BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient(int type, float Fc, float Q,
 	Filter.FreqCutOffValue = Fc;
 	if (type != Filter.type ||
 		Fc != Filter.FreqCutOffValue ||
-		PeakGain != Filter.PeakGain)
+		PeakGain != Filter.PeakGain ||
+		Filter.NewParameters == true)
 	{
 		Filter.TypeName = SetBiQuadFilterType(type);
 		Filter.type = type;
