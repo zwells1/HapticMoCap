@@ -565,13 +565,13 @@ void keySelect(unsigned char key, int x, int y)
 	//change lower freq up by 5
 	if (key == 'o')
 	{
-		BiQuadFilt.
+		BiQuadFilt.AdjustFilterType(1);
 	}
 
 	//change lower freq down by 5
 	if (key == 'k')
 	{
-		
+		BiQuadFilt.AdjustFilterType(-1);
 	}
 
 	//change lower freq up by 5
@@ -632,8 +632,8 @@ void updateGraphics(void)
 	// update haptic rate data
 
 	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
-		+ "lower cutoff freq " + std::to_string(Filter.GetLowerFreqCutOff()) + "Hz "
-		+ "upper cutoff freq " + std::to_string(Filter.GetUpperFreqCutOff()) + "Hz";
+		+ "BiQuad Filter Type " + BiQuadFilt.GetBiQuadFilterType() +
+		+", cutoff freq " + std::to_string(BiQuadFilt.GetBiQuadCutoffFreq()) + "Hz ";
 
 	labelHud->setText(HudString);
 
@@ -714,6 +714,10 @@ void updateHaptics(void)
 		{
 			std::lock_guard<std::mutex> guard(mObjectOnMapChange);
 			coll = AllObjects.CollisionDetection(AllMarkers->GrabLastElement());
+			if (BiQuadFilt.CheckForBiQuadFilterChange())
+			{
+				BiQuadFilterVars Coeff = BiQuadFilt.SolveForCoefficient();
+			}
 		}
 			if (coll == true)
 			{

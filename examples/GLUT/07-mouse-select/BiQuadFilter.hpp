@@ -18,10 +18,14 @@ Tested With: Chai version 3.1.1
 #include <vector>
 struct BiQuadFilterVars
 {
-	short PeakGain;
-	int FreqCutOffValue;
-	int type;
-	std::string TypeName;
+	short PeakGain = 1;
+	int FreqCutOffValue = 100;
+	//default value for Q
+	float Q = 0.7071;
+	int Fs = 2000;
+	bool NewParameters = false;
+	int type = 0;
+	std::string TypeName = "LowPass";
 	float a0;
 	float a1;
 	float a2;
@@ -60,8 +64,11 @@ public:
 
 	//default Q = 0.7071
 	BiQuadFilterVars SolveForCoefficient(int type, float Fc, float Fs, float Gain);
+	
+	//all filter parameters already set
+	BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient();
 
-	bool CheckForCutoffFreqChange(float newCutoffFreq);
+	bool CheckForBiQuadFilterChange();
 
 	void SetGain(short Gain);
 
@@ -72,6 +79,8 @@ public:
 	std::string GetBiQuadFilterType();
 
 	std::string SetBiQuadFilterType(int index);
+
+	int GetBiQuadCutoffFreq();
 
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:

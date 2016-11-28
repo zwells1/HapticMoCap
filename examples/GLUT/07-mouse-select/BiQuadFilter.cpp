@@ -38,6 +38,7 @@ BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient(int type, float Fc, float Q,
 		Filter.type = type;
 
 		SolveBiQuadFilter(type, Fc, Q, Fs, PeakGain);
+		Filter.NewParameters = false;
 	}
 	
 	return Filter;
@@ -45,25 +46,24 @@ BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient(int type, float Fc, float Q,
 
 BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient(int type, float Fc, float Fs, float PeakGain)
 {
-	//default value for Q
-	float Q = 0.7071;
-	SolveForCoefficient(type, Fc, Q, Fs);
+	return SolveForCoefficient(type, Fc, Filter.Q, Fs);
 }
 
-bool ZBiQuadFilter::CheckForCutoffFreqChange(float newCutoffFreq)
+BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient()
 {
-	if (newCutoffFreq != Filter.FreqCutOffValue)
-	{
-		return true;
-	}
-	return false;
+	return SolveForCoefficient(Filter.type, Filter.FreqCutOffValue, Filter.Q, Filter.Fs, Filter.PeakGain);
+}
+
+bool ZBiQuadFilter::CheckForBiQuadFilterChange()
+{
+	return Filter.NewParameters;
 }
 
 void ZBiQuadFilter::SetGain(short Gain) 
 {
 	Filter.PeakGain = Gain;
+	Filter.NewParameters = true;
 }
-
 
 void ZBiQuadFilter::AdjustFilterType(int Adjust)
 {
@@ -72,21 +72,29 @@ void ZBiQuadFilter::AdjustFilterType(int Adjust)
 		Filter.type = BiQuadType[0].first;
 		Filter.TypeName = BiQuadType[0].second;
 	}
-	else if (Adjust == 1 && Filter.type == BiQuadType.size())
+	else if (Adjust == 1 && (Filter.type == BiQuadType.size()-1) )
 	{
-		Filter.type = BiQuadType.back.first;
-		Filter.TypeName = BiQuadType.back.second;
+		Filter.type = BiQuadType.back().first;
+		Filter.TypeName = BiQuadType.back().second;
 	}
 	else
 	{
-		Filter.type = BiQuadType[Adjust].first;
-		Filter.TypeName = BiQuadType[Adjust].second;
+		int index = Filter.type + Adjust;
+		Filter.type = BiQuadType[index].first;
+		Filter.TypeName = BiQuadType[index].second;
 	}
+	Filter.NewParameters = true;
 }
 
 void ZBiQuadFilter::AdjustCutoffFreq(int Adjust)
 {
 	Filter.FreqCutOffValue += Adjust;
+	Filter.NewParameters = true;
+}
+
+int ZBiQuadFilter::GetBiQuadCutoffFreq()
+{
+	return Filter.FreqCutOffValue;
 }
 
 std::string ZBiQuadFilter::GetBiQuadFilterType()
@@ -95,9 +103,11 @@ std::string ZBiQuadFilter::GetBiQuadFilterType()
 }
 
 //bad name for function !!! ????
+
 std::string ZBiQuadFilter::SetBiQuadFilterType(int index)
 {
 	Filter.TypeName = BiQuadType[index].second;
+	Filter.NewParameters = true;
 	return Filter.TypeName;
 }
 
