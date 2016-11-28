@@ -5,6 +5,7 @@ Tested With : Chai version 3.1.1
 */
 
 #include "BiQuadFilter.hpp"
+#include <string>
 #if(_MSC_VER == 1900)
 #define _USE_MATH_DEFINES 
 #include <cmath> //abs
@@ -38,6 +39,7 @@ BiQuadFilterVars ZBiQuadFilter::SolveForCoefficient(int type, float Fc, float Q,
 		Filter.type = type;
 
 		SolveBiQuadFilter(type, Fc, Q, Fs, PeakGain);
+		SetFilterParameters();
 		Filter.NewParameters = false;
 	}
 	
@@ -111,6 +113,20 @@ std::string ZBiQuadFilter::SetBiQuadFilterType(int index)
 	return Filter.TypeName;
 }
 
+void ZBiQuadFilter::SetFilterParameters()
+{
+	Coefficients.clear();
+	Coefficients.push_back(std::to_string(Filter.a0));
+	Coefficients.push_back(std::to_string(Filter.a1));
+	Coefficients.push_back(std::to_string(Filter.a2));
+	Coefficients.push_back(std::to_string(Filter.b1));
+	Coefficients.push_back(std::to_string(Filter.b2));
+}
+
+std::vector<std::string> ZBiQuadFilter::GetFilterParameters()
+{
+	return Coefficients;
+}
 
 void ZBiQuadFilter::SetupFilterTypes()
 {

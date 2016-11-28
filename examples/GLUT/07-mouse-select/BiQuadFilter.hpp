@@ -82,6 +82,10 @@ public:
 
 	int GetBiQuadCutoffFreq();
 
+	void ZBiQuadFilter::SetFilterParameters();
+
+	std::vector<std::string> GetFilterParameters();
+
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:
 	//--------------------------------------------------------------------------
@@ -99,6 +103,8 @@ public:
 	BiQuadFilterVars Filter;
 	
 	std::vector<std::pair<int, std::string>> BiQuadType;
+
+	std::vector<std::string> Coefficients;
 
 };
 

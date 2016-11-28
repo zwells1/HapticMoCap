@@ -716,19 +716,31 @@ void updateHaptics(void)
 			coll = AllObjects.CollisionDetection(AllMarkers->GrabLastElement());
 			if (BiQuadFilt.CheckForBiQuadFilterChange())
 			{
-				BiQuadFilterVars Coeff = BiQuadFilt.SolveForCoefficient();
+				//think up a good way to fix and get rid of this unneccessary shit
+				// ??? !!!
+				BiQuadFilterVars tmp = BiQuadFilt.SolveForCoefficient();
+				#ifdef WIFI_TESTING
+				WifiHook.SendPacket(
+					AllObjects.GetAmplitudeOfCollidedObject(),
+					BiQuadFilt.GetFilterParameters());
+				#endif
 			}
 		}
 			if (coll == true)
 			{
 				#ifdef WIFI_TESTING
-				WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
+				//WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
+				WifiHook.SendPacket(
+					AllObjects.GetAmplitudeOfCollidedObject(),
+					BiQuadFilt.GetFilterParameters());
 				#endif
 			}
 			else
 			{
 				#ifdef WIFI_TESTING
-				WifiHook.send("0");
+				WifiHook.SendPacket(
+					"0",
+					BiQuadFilt.GetFilterParameters());
 				#endif
 			}
 

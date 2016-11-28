@@ -26,6 +26,23 @@ ZWifi::~ZWifi()
 	socket_.close();
 }
 
-void ZWifi::send(const std::string& msg) {
+void ZWifi::Send(const std::string& msg) {
+	socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
+}
+
+
+
+void ZWifi::SendPacket(
+	const std::string& AmplitudeOfObject,
+	const std::vector<std::string>& FiltersCoefficients)
+{
+	std::string msg = AmplitudeOfObject;
+	
+	for (int i = 0; i < FiltersCoefficients.size(); i++)
+	{
+		msg += ",";
+		msg += FiltersCoefficients[i];
+	}
+
 	socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
 }

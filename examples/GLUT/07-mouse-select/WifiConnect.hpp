@@ -28,7 +28,11 @@ public:
 	//-------------------------------------------------------------------------
 public:
 	
-	void send(const std::string& msg);
+	void Send(const std::string& msg);
+
+	void SendPacket(
+		const std::string& AmplitudeOfObject,
+		const std::vector<std::string>& FiltersCoefficients);
 
 	//-------------------------------------------------------------------------
 	// PRIVATE MEMBERS:
