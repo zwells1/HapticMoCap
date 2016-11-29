@@ -773,7 +773,8 @@ void CheckMarkers()
 	bool MarkersMoved = AllMarkers->CheckForMovedMarkerPosition(NewPos); 
 
 	//same number of markers did they move??
-	if (MyHand.DifferentNumberOfMarkers() == false)	
+	if (MyHand.DifferentNumberOfMarkers() == false &&
+		AllMarkers->NumberOfWorldMarkers() == NewPos.size())	
 	{	
 		//update markers positions
 		if (MarkersMoved)
@@ -835,7 +836,7 @@ void UpdateMarkerLocations()
 				curr.X - OriginOffset.x(),
 				curr.Z - OriginOffset.z(),
 				curr.Y - OriginOffset.y());
-				*/
+			*/
 			SwapMarker(curr);
 			//curr.Marker->translate(-curr.XDist, -curr.ZDist, -curr.YDist);
 			//std::cout << "after " << curr.Marker->getLocalPos() << std::endl;
