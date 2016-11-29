@@ -109,6 +109,8 @@ cSpotLight *light;
 // a label to display the rate [Hz] at which the simulation is running
 cLabel* labelHud;
 
+cLabel* labelNumMarkers;
+
 //object that is moved around
 cMesh* sphere = new cMesh();
 
@@ -157,6 +159,8 @@ std::mutex mObjectOnMapChange;
 ZObjects AllObjects;
 
 std::string HudString;
+
+std::stringstream NumberOfMarkers;
 //------------------------------------------------------------------------------
 // DECLARED FUNCTIONS
 //------------------------------------------------------------------------------
@@ -385,6 +389,11 @@ int main(int argc, char* argv[])
 	labelHud = new cLabel(font);
 	labelHud->m_fontColor.setBlack();
 	camera->m_frontLayer->addChild(labelHud);
+
+	//number of markers displayed to the user
+	labelNumMarkers = new cLabel(font);
+	labelNumMarkers->m_fontColor.setBlack();
+	camera->m_frontLayer->addChild(labelNumMarkers);
 
 	// create a background
 	cBackground* background = new cBackground();
@@ -630,11 +639,20 @@ void updateGraphics(void)
 		+ "lower cutoff freq " + std::to_string(Filter.GetLowerFreqCutOff()) + "Hz "
 		+ "upper cutoff freq " + std::to_string(Filter.GetUpperFreqCutOff()) + "Hz";
 
+
+
 	labelHud->setText(HudString);
 
 	// update position of label
 	labelHud->setLocalPos(
 		(int)(0.5 * (windowW - labelHud->getWidth())), 15);
+	
+	NumberOfMarkers.str("");
+	NumberOfMarkers << AllMarkers->NumberOfWorldMarkers();
+	labelNumMarkers->setText(NumberOfMarkers.str());
+
+	labelNumMarkers->setLocalPos(
+		(int)(0.1 * (windowW - labelHud->getWidth())), 15);
 
 	/////////////////////////////////////////////////////////////////////
 	// USER DEFINED OBJECTS
