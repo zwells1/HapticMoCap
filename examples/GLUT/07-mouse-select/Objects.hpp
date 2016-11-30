@@ -66,7 +66,7 @@ public:
 	//run through
 	bool CollisionDetection(cVector3d& Marker);
 
-	Object GetObject(int& Index);
+	Object GetAllObject(int& Index);
 
 	int GetNumberOfObjects();
 

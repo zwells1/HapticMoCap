@@ -107,7 +107,7 @@ bool ZObjects::CollisionDetection(cVector3d& Marker)
 	return collision;
 }
 
-Object ZObjects::GetObject(int& Index)
+Object ZObjects::GetThisObject(int& Index)
 {
 	return AllObjects[Index];
 }
