@@ -45,6 +45,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // asio has to happen before windows.h otherwise errors will occur with
 //winsock
 #include <boost/asio.hpp> 
+#include "BiQuadFilter.hpp"
 #include "chai3d.h"
 #include "Filter.hpp"
 #include "Marker.hpp"
@@ -152,6 +153,10 @@ ZWifi WifiHook(io_service, "192.168.0.194", "123");
 //Filter globals
 ZFilter Filter;
 
+//Biquad Filter
+ZBiQuadFilter BiQuadFilt;
+
+
 //mutex for when the objects change
 std::mutex mObjectOnMapChange;
 
@@ -242,11 +247,11 @@ int main(int argc, char* argv[])
 	cout << "[q] moves +Z" << endl;
 	cout << "[e] moves -Z" << endl;
 
-	cout << " [p] lower freq adjustment inc by 5Hz" << endl;
-	cout << " [l] lower freq adjustment dec by 5Hz" << endl;
+	cout << " [p] cutoff freq adjustment inc by 5Hz" << endl;
+	cout << " [l] cutoff freq adjustment dec by 5Hz" << endl;
 	
-	cout << " [o] upper freq adjustment inc by 5Hz" << endl;
-	cout << " [k] upper freq adjustment dec by 5Hz" << endl;
+	cout << " [o] change the filter type increment" << endl;
+	cout << " [k] change the filter type decrement" << endl;
 
 	cout << endl << endl;
 
@@ -576,13 +581,13 @@ void keySelect(unsigned char key, int x, int y)
 	//change lower freq up by 5
 	if (key == 'o')
 	{
-		Filter.AdjustLowerFreqCutOff(5);
+		BiQuadFilt.AdjustFilterType(1);
 	}
 
 	//change lower freq down by 5
 	if (key == 'k')
 	{
-		Filter.AdjustLowerFreqCutOff(-5);
+		BiQuadFilt.AdjustFilterType(-1);
 	}
 
 	//change lower freq up by 5
@@ -592,7 +597,7 @@ void keySelect(unsigned char key, int x, int y)
 		//addSphere();
 		//std::cout << "glob: " << sphere->getGlobalPos() << std::endl;
 		//std::cout << "local: " << sphere->getLocalPos() << std::endl;
-		Filter.AdjustUpperFreqCutOff(5);
+		BiQuadFilt.AdjustCutoffFreq(5);
 	}
 
 	//change upper freq down by 5
@@ -601,7 +606,7 @@ void keySelect(unsigned char key, int x, int y)
 		//WifiHook.send("0");
 		//removeSphere();
 		//ReadValsWTF();
-		Filter.AdjustUpperFreqCutOff(-5);
+		BiQuadFilt.AdjustCutoffFreq(-5);
 	}
 
 }
@@ -643,8 +648,8 @@ void updateGraphics(void)
 	// update haptic rate data
 
 	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
-		+ "lower cutoff freq " + std::to_string(Filter.GetLowerFreqCutOff()) + "Hz "
-		+ "upper cutoff freq " + std::to_string(Filter.GetUpperFreqCutOff()) + "Hz";
+		+ "BiQuad Filter Type " + BiQuadFilt.GetBiQuadFilterType() +
+		+", cutoff freq " + std::to_string(BiQuadFilt.GetBiQuadCutoffFreq()) + "Hz ";
 
 
 
@@ -733,20 +738,36 @@ void updateHaptics(void)
 		{
 			std::lock_guard<std::mutex> guard(mObjectOnMapChange);
 			coll = AllObjects.CollisionDetection(AllMarkers->GrabLastElement());
+			if (BiQuadFilt.CheckForBiQuadFilterChange())
+			{
+				//think up a good way to fix and get rid of this unneccessary shit
+				// ??? !!!
+				BiQuadFilterVars tmp = BiQuadFilt.SolveForCoefficient();
+				#ifdef WIFI_TESTING
+				WifiHook.SendPacket(
+					AllObjects.GetAmplitudeOfCollidedObject(),
+					BiQuadFilt.GetFilterParameters());
+				#endif
+			}
 		}
 		if (SendDataTimer->timeoutOccurred())
 		{
 			if (coll == true)
 			{
-			#ifdef WIFI_TESTING
-				WifiHook.send(AllObjects.GetAmplitudeOfCollidedObject());
-			#endif
+				#ifdef WIFI_TESTING
+				//WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
+				WifiHook.SendPacket(
+					AllObjects.GetAmplitudeOfCollidedObject(),
+					BiQuadFilt.GetFilterParameters());
+				#endif
 			}
 			else
 			{
-			#ifdef WIFI_TESTING
-				WifiHook.send("0");
-			#endif
+				#ifdef WIFI_TESTING
+				WifiHook.SendPacket(
+					"0",
+					BiQuadFilt.GetFilterParameters());
+				#endif
 			}
 			SendDataTimer->start();
 		}
