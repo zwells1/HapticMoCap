@@ -161,6 +161,9 @@ ZObjects AllObjects;
 std::string HudString;
 
 std::stringstream NumberOfMarkers;
+
+//haptic timer of when to send data
+cPrecisionClock* SendDataTimer;
 //------------------------------------------------------------------------------
 // DECLARED FUNCTIONS
 //------------------------------------------------------------------------------
@@ -409,7 +412,9 @@ int main(int argc, char* argv[])
 	//--------------------------------------------------------------------------
 	// INITIALIZE -- Frame
 	//--------------------------------------------------------------------------
-	
+	SendDataTimer = new cPrecisionClock();
+	SendDataTimer->setTimeoutPeriodSeconds(0.001);
+
 	AllMarkers = new ZWorldMarkers();
 
 	InitMarkers();
@@ -447,6 +452,8 @@ int main(int argc, char* argv[])
 	//--------------------------------------------------------------------------
 	// START SIMULATION
 	//--------------------------------------------------------------------------
+	//start timer
+	SendDataTimer->start();
 
 	// create a thread which starts the main haptics rendering loop
 	cThread* hapticsThread = new cThread();
@@ -727,6 +734,7 @@ void updateHaptics(void)
 			std::lock_guard<std::mutex> guard(mObjectOnMapChange);
 			coll = AllObjects.CollisionDetection(AllMarkers->GrabLastElement());
 		}
+		if(SendDataTimer->timeoutOccurred())
 			if (coll == true)
 			{
 				#ifdef WIFI_TESTING
@@ -739,7 +747,7 @@ void updateHaptics(void)
 				WifiHook.send("0");
 				#endif
 			}
-
+		SendDataTimer->start();
 	}
 
 	// exit haptics thread
