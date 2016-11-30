@@ -445,6 +445,12 @@ int main(int argc, char* argv[])
 		color = ObjectColor::green;
 		AllObjects.MakeBox(Dim1, Loc1, color, Amplitude);
 
+		Dim1 = cVector3d(0.3, 0.3, 0.1);
+		Loc1 = cVector3d(0.4, 0.1, 0.0);
+		Amplitude = "1";
+		color = ObjectColor::purple;
+		AllObjects.MakeBox(Dim1, Loc1, color, Amplitude);
+
 	}
 
 	//add all objects to the world
