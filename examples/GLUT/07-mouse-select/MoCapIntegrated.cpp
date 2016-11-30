@@ -734,20 +734,22 @@ void updateHaptics(void)
 			std::lock_guard<std::mutex> guard(mObjectOnMapChange);
 			coll = AllObjects.CollisionDetection(AllMarkers->GrabLastElement());
 		}
-		if(SendDataTimer->timeoutOccurred())
+		if (SendDataTimer->timeoutOccurred())
+		{
 			if (coll == true)
 			{
-				#ifdef WIFI_TESTING
-				WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
-				#endif
+			#ifdef WIFI_TESTING
+				WifiHook.send(AllObjects.GetAmplitudeOfCollidedObject());
+			#endif
 			}
 			else
 			{
-				#ifdef WIFI_TESTING
+			#ifdef WIFI_TESTING
 				WifiHook.send("0");
-				#endif
+			#endif
 			}
-		SendDataTimer->start();
+			SendDataTimer->start();
+		}
 	}
 
 	// exit haptics thread
