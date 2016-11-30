@@ -131,7 +131,7 @@ std::vector<Object> ZObjects::GetAllObjects()
 std::string ZObjects::GetAmplitudeOfCollidedObject()
 {
 	std::string temp;
-	for (auto curr : AllObjects)
+	for (auto& curr : AllObjects)
 	{
 		if (curr.Collision == true)
 		{
@@ -140,6 +140,7 @@ std::string ZObjects::GetAmplitudeOfCollidedObject()
 			break;
 		}
 	}
+	//std::cout << temp << std::endl;
 	return temp;
 }
 
