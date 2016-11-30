@@ -36,7 +36,7 @@ struct Object
 
 enum class ObjectColor
 {
-	red = 0, yellow = 1, green = 2
+	red = 0, yellow = 1, green = 2, purple = 3
 };
 
 
