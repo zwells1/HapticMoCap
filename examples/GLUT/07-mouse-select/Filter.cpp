@@ -37,7 +37,6 @@ ZFilter::~ZFilter()
 
 void ZFilter::SendData()
 {
-
 }
 
 std::string ZFilter::GetFilterAmplitude()

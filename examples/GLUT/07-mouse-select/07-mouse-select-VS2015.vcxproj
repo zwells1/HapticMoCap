@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BiQuadFilter.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="Marker.cpp" />
     <ClCompile Include="MoCapIntegrated.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="WorldMarkers.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BiQuadFilter.hpp" />
     <ClInclude Include="Filter.hpp" />
     <ClInclude Include="Marker.hpp" />
     <ClInclude Include="MoCapLink.hpp" />
