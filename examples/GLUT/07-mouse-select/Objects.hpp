@@ -31,6 +31,7 @@ struct Object
 	bool Collision = false;
 	cMaterial* Color;
 	std::string Amplitude;
+	int ObjectIndice;
 
 };
 
@@ -74,7 +75,11 @@ public:
 
 	std::vector<Object> GetAllObjects();
 
-	std::string ZObjects::GetAmplitudeOfCollidedObject();
+	std::string GetAmplitudeOfCollidedObject();
+
+	bool IsCollisionLastObject();
+
+	void SetAmplitudeofLastObject(std::string amplitude);
 
 	//-----------------------------------------------------------------------
 	// PRIVATE METHODS:
@@ -89,6 +94,10 @@ private:
 private:
 
 	std::vector<Object> AllObjects;
+
+	int mObjectIndices = 0;
+
+	int mCollidedIndice = -1;
 };
 
 #endif

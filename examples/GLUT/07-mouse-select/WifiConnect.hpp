@@ -34,6 +34,10 @@ public:
 		const std::string& AmplitudeOfObject,
 		const std::vector<std::string>& FiltersCoefficients);
 
+	void SendAmplitudePacket(
+		const std::string& AmplitudeOfObject,
+		int SizeOfFilter);
+
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:
 	//-------------------------------------------------------------------------

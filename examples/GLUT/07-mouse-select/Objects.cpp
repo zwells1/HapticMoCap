@@ -12,6 +12,7 @@ Tested With : Chai version 3.1.1
 //constructor
 ZObjects::ZObjects()
 {
+	mCollidedIndice = -1;
 }
 
 //destructor
@@ -84,8 +85,11 @@ void ZObjects::MakeBox(
 	y = Location.y() - (Dimensions.y() / 2) + buffer;
 	Box.BottomRight = cVector3d(x, y, 0.0);
 
+	Box.ObjectIndice = mObjectIndices;
 
 	AllObjects.push_back(Box);
+
+	mObjectIndices++;
 }
 
 bool ZObjects::CollisionDetection(cVector3d& Marker)
@@ -101,13 +105,14 @@ bool ZObjects::CollisionDetection(cVector3d& Marker)
 		if (collision == true)
 		{
 			curr.Collision = true;
+			mCollidedIndice = curr.ObjectIndice;
 			break;
 		}
 	}
 	return collision;
 }
 
-Object ZObjects::GetThisObject(int& Index)
+Object ZObjects::GetAllObject(int& Index)
 {
 	return AllObjects[Index];
 }
@@ -143,6 +148,23 @@ std::string ZObjects::GetAmplitudeOfCollidedObject()
 	//std::cout << temp << std::endl;
 	return temp;
 }
+
+bool ZObjects::IsCollisionLastObject()
+{
+	if (mCollidedIndice == (AllObjects.size()-1) )
+	{
+		//reset
+		mCollidedIndice = -1;
+		return true;
+	}
+	return false;
+}
+
+void ZObjects::SetAmplitudeofLastObject(std::string amplitude)
+{
+	AllObjects.back().Amplitude = amplitude;
+}
+
 
 //private functions
 bool ZObjects::CheckBounds(Object& Obj, cVector3d& Marker)

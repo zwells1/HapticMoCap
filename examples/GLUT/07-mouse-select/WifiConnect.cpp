@@ -30,7 +30,22 @@ void ZWifi::Send(const std::string& msg) {
 	socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
 }
 
+void ZWifi::SendAmplitudePacket(
+	const std::string& AmplitudeOfObject,
+	int SizeOfFilter)
+{
+	//header
+	std::string msg = "X";
+	msg += AmplitudeOfObject;
+	std::string dummyString = ",H";
 
+	for (int i = 0; i < SizeOfFilter; i++)
+	{
+		msg += dummyString;
+	}
+
+	socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
+}
 
 void ZWifi::SendPacket(
 	const std::string& AmplitudeOfObject,

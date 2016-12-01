@@ -31,6 +31,7 @@ struct BiQuadFilterVars
 	float a2;
 	float b1;
 	float b2;
+	int NumberOfParameters = 5;
 
 };
 
@@ -72,6 +73,8 @@ public:
 
 	void SetGain(short Gain);
 
+	std::string GetGainString();
+
 	void AdjustFilterType(int Adjust);
 
 	void AdjustCutoffFreq(int Adjust);
@@ -80,11 +83,15 @@ public:
 
 	std::string SetBiQuadFilterType(int index);
 
+	void AdjustPeakGain(short PeakGain);
+
 	int GetBiQuadCutoffFreq();
 
 	void ZBiQuadFilter::SetFilterParameters();
 
 	std::vector<std::string> GetFilterParameters();
+
+	int GetFilterSize();
 
 	//-------------------------------------------------------------------------
 	// PRIVATE METHODS:

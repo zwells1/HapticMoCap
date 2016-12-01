@@ -15,6 +15,7 @@ Tested With : Chai version 3.1.1
 #include <cmath> //abs
 #endif
 
+#include <sstream>
 
 //constructor
 ZBiQuadFilter::ZBiQuadFilter()
@@ -68,6 +69,36 @@ void ZBiQuadFilter::SetGain(short Gain)
 	Filter.NewParameters = true;
 }
 
+void ZBiQuadFilter::AdjustPeakGain(short PeakGain)
+{
+	short temp = Filter.PeakGain;
+
+	if (temp == 0 && PeakGain < 0)
+	{
+		temp = 0;
+	}
+	else if (temp == 9 && PeakGain > 0)
+	{
+		temp = 9;
+	}
+	else
+	{
+		temp += PeakGain;
+	}
+
+	SetGain(temp);
+}
+
+std::string ZBiQuadFilter::GetGainString()
+{
+
+	std::stringstream GainString;
+	GainString << Filter.PeakGain;
+	
+	return GainString.str();
+}
+
+
 void ZBiQuadFilter::AdjustFilterType(int Adjust)
 {
 	if (Adjust == -1 && Filter.type == 0)
@@ -104,6 +135,11 @@ std::string ZBiQuadFilter::GetBiQuadFilterType()
 {
 	return Filter.TypeName;
 }
+
+int ZBiQuadFilter::GetFilterSize() {
+	return Filter.NumberOfParameters;
+}
+
 
 //bad name for function !!! ????
 

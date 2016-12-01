@@ -247,11 +247,14 @@ int main(int argc, char* argv[])
 	cout << "[q] moves +Z" << endl;
 	cout << "[e] moves -Z" << endl;
 
-	cout << " [p] cutoff freq adjustment inc by 5Hz" << endl;
-	cout << " [l] cutoff freq adjustment dec by 5Hz" << endl;
+	cout << "[p] cutoff freq adjustment inc by 5Hz" << endl;
+	cout << "[l] cutoff freq adjustment dec by 5Hz" << endl;
 	
-	cout << " [o] change the filter type increment" << endl;
-	cout << " [k] change the filter type decrement" << endl;
+	cout << "[o] change the filter type increment" << endl;
+	cout << "[k] change the filter type decrement" << endl;
+
+	cout << "[i] change the filter peak gain increment" << endl;
+	cout << "[j] change the filter peak gain decrement" << endl;
 
 	cout << endl << endl;
 
@@ -615,6 +618,18 @@ void keySelect(unsigned char key, int x, int y)
 		BiQuadFilt.AdjustCutoffFreq(-5);
 	}
 
+	//change peak gain up by 1
+	if (key == 'i')
+	{
+		BiQuadFilt.AdjustPeakGain(1);
+	}
+
+	//change peak gain down by 1
+	if (key == 'j')
+	{
+		BiQuadFilt.AdjustPeakGain(-1);
+	}
+
 }
 
 //------------------------------------------------------------------------------
@@ -655,7 +670,8 @@ void updateGraphics(void)
 
 	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
 		+ "BiQuad Filter Type " + BiQuadFilt.GetBiQuadFilterType() +
-		+", cutoff freq " + std::to_string(BiQuadFilt.GetBiQuadCutoffFreq()) + "Hz ";
+		+", cutoff freq " + std::to_string(BiQuadFilt.GetBiQuadCutoffFreq()) + "Hz "
+		+ "Peak Gain: " + BiQuadFilt.GetGainString();
 
 
 
@@ -747,18 +763,17 @@ void updateHaptics(void)
 			if (BiQuadFilt.CheckForBiQuadFilterChange())
 			{
 				//think up a good way to fix and get rid of this unneccessary shit
-				// ??? !!!
+				// ??? !!! only need it so i can run the Solve filter
 				BiQuadFilterVars tmp = BiQuadFilt.SolveForCoefficient();
-				#ifdef WIFI_TESTING
-				WifiHook.SendPacket(
-					AllObjects.GetAmplitudeOfCollidedObject(),
-					BiQuadFilt.GetFilterParameters());
-				#endif
+
+				//update the special objects amplitude
+				AllObjects.SetAmplitudeofLastObject(BiQuadFilt.GetGainString());
 			}
 		}
 		if (SendDataTimer->timeoutOccurred())
 		{
-			if (coll == true)
+			if (coll == true &&
+				AllObjects.IsCollisionLastObject())
 			{
 				#ifdef WIFI_TESTING
 				//WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
@@ -767,12 +782,18 @@ void updateHaptics(void)
 					BiQuadFilt.GetFilterParameters());
 				#endif
 			}
+			else if (coll == true)
+			{
+			#ifdef WIFI_TESTING
+				//WifiHook.send( AllObjects.GetAmplitudeOfCollidedObject() );
+				int x = 5;
+				WifiHook.SendAmplitudePacket(AllObjects.GetAmplitudeOfCollidedObject(), BiQuadFilt.GetFilterSize());
+			#endif
+			}
 			else
 			{
 				#ifdef WIFI_TESTING
-				WifiHook.SendPacket(
-					"0",
-					BiQuadFilt.GetFilterParameters());
+				WifiHook.SendAmplitudePacket("0", BiQuadFilt.GetFilterSize());
 				#endif
 			}
 			SendDataTimer->start();
