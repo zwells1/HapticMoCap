@@ -2374,7 +2374,16 @@ void cGenericObject::renderSceneGraph(cRenderOptions& a_options)
     // render children
     for (unsigned int i=0; i<m_children.size(); i++)
     {
-        m_children[i]->renderSceneGraph(a_options);
+		if (m_children[i]->m_name == "" && m_children[i]->m_parent != NULL )
+		{
+			m_children[i]->renderSceneGraph(a_options);
+		}
+		else
+		{
+			m_children.erase(m_children.begin() + i);
+			//need to break out otherwise will try to check a future index that is out of bounds.
+			break; 
+		}
     }
 
     // pop current matrix
