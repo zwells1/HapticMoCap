@@ -889,6 +889,7 @@ void CheckMarkers()
 					world->removeChild(Ref.Marker);
 					//erase that element from array
 					AllMarkers->EraseMarker(index);
+					break;
 					
 				}
 			}

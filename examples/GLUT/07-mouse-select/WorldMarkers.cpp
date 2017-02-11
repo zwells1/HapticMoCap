@@ -125,16 +125,8 @@ size_t ZWorldMarkers::NumberOfWorldMarkers()
 
 void ZWorldMarkers::EraseMarker(int& index)
 {
-	if (index < ReferenceMarkers.size())
-	{
-		delete ReferenceMarkers[index].Marker;
-		//could have out of bounds issues !!! ???	
-		ReferenceMarkers.erase(ReferenceMarkers.begin() + index);
-	}
-	else
-	{
-		std::cout << "error out of bounds could not delete obj"<< std::endl;
-	}
+	delete ReferenceMarkers[index].Marker;
+	ReferenceMarkers.erase(ReferenceMarkers.begin() + index);
 }
 
 
