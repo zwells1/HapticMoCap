@@ -64,12 +64,6 @@ public:
 
 	size_t NumberOfWorldMarkers();
 
-	void SetEraseMarker(bool Value);
-
-	bool GetEraseMarker();
-
-	void EraseWorldMarkers();
-
 	void EraseMarker(int& index);
 
 	void SwapMarker(WorldMarker& Replace);
