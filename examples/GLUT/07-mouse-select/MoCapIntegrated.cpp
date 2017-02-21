@@ -70,7 +70,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 
 #define WIFI_TESTING
-
+#define NOMOCAP_TESTING
 
 
 
@@ -422,11 +422,11 @@ int main(int argc, char* argv[])
 	//--------------------------------------------------------------------------
 	SendDataTimer = new cPrecisionClock();
 	SendDataTimer->setTimeoutPeriodSeconds(0.001);
-
+	#ifndef NOMOCAP_TESTING
 	AllMarkers = new ZWorldMarkers();
 
 	InitMarkers();
-
+	#endif
 
 	
 	{
@@ -665,7 +665,7 @@ void updateGraphics(void)
 	/////////////////////////////////////////////////////////////////////
 	// UPDATE WIDGETS
 	/////////////////////////////////////////////////////////////////////
-
+	#ifndef NOMOCAP_TESTING
 	// update haptic rate data
 
 	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
@@ -695,6 +695,7 @@ void updateGraphics(void)
 		std::lock_guard<std::mutex> guard(mObjectOnMapChange);
 		CheckMarkers();
 	}
+	#endif
 	/////////////////////////////////////////////////////////////////////
 	// RENDER SCENE
 	/////////////////////////////////////////////////////////////////////
@@ -745,6 +746,7 @@ void updateHaptics(void)
 	// main haptic simulation loop
 	while (simulationRunning)
 	{
+		#ifndef NOMOCAP_TESTING
 		/////////////////////////////////////////////////////////////////////////
 		// HAPTIC RENDERING
 		/////////////////////////////////////////////////////////////////////////
@@ -798,6 +800,7 @@ void updateHaptics(void)
 			}
 			SendDataTimer->start();
 		}
+	#endif
 	}
 
 	// exit haptics thread
