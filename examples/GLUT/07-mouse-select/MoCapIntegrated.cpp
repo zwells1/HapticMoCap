@@ -70,7 +70,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 
 #define WIFI_TESTING
-
+#define NOMOCAP_TESTING
 
 
 
@@ -295,7 +295,7 @@ int main(int argc, char* argv[])
 	glutDisplayFunc(updateGraphics);
 	glutKeyboardFunc(keySelect);
 	glutReshapeFunc(resizeWindow);
-	glutSetWindowTitle("CHAI3D");
+	glutSetWindowTitle("Touch Amplification");
 
 	// set fullscreen mode
 	if (fullscreen)
@@ -422,12 +422,12 @@ int main(int argc, char* argv[])
 	//--------------------------------------------------------------------------
 	SendDataTimer = new cPrecisionClock();
 	SendDataTimer->setTimeoutPeriodSeconds(0.001);
-
+	
+	#ifndef NOMOCAP_TESTING
 	AllMarkers = new ZWorldMarkers();
 
 	InitMarkers();
-
-
+	#endif
 	
 	{
 		cVector3d Dim1 = cVector3d(0.3, 0.3, 0.1);
@@ -486,7 +486,6 @@ int main(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void resizeWindow(int w, int h)
 {
 	windowW = w;
@@ -495,7 +494,6 @@ void resizeWindow(int w, int h)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void keySelect(unsigned char key, int x, int y)
 {
 	// option ESC: exit
@@ -634,7 +632,6 @@ void keySelect(unsigned char key, int x, int y)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void close(void)
 {
 	// stop the simulation
@@ -646,7 +643,6 @@ void close(void)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void graphicsTimer(int data)
 {
 	if (simulationRunning)
@@ -659,13 +655,12 @@ void graphicsTimer(int data)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void updateGraphics(void)
 {
 	/////////////////////////////////////////////////////////////////////
 	// UPDATE WIDGETS
 	/////////////////////////////////////////////////////////////////////
-
+	#ifndef NOMOCAP_TESTING
 	// update haptic rate data
 
 	HudString = cStr(frequencyCounter.getFrequency(), 0) + "Hz "
@@ -695,6 +690,7 @@ void updateGraphics(void)
 		std::lock_guard<std::mutex> guard(mObjectOnMapChange);
 		CheckMarkers();
 	}
+	#endif
 	/////////////////////////////////////////////////////////////////////
 	// RENDER SCENE
 	/////////////////////////////////////////////////////////////////////
@@ -726,13 +722,14 @@ void updateGraphics(void)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
-enum cMode
+enum cMode //is this even needed?
 {
 	IDLE,
 	SELECTION
 };
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void updateHaptics(void)
 {
 	cMode state = IDLE;
@@ -745,6 +742,7 @@ void updateHaptics(void)
 	// main haptic simulation loop
 	while (simulationRunning)
 	{
+		#ifndef NOMOCAP_TESTING
 		/////////////////////////////////////////////////////////////////////////
 		// HAPTIC RENDERING
 		/////////////////////////////////////////////////////////////////////////
@@ -798,6 +796,7 @@ void updateHaptics(void)
 			}
 			SendDataTimer->start();
 		}
+	#endif
 	}
 
 	// exit haptics thread
@@ -826,7 +825,8 @@ void PlaceAndCenterFloor(cMesh* base,
 	base->m_material->setBrownBlanchedAlmond();
 }
 
-
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void InitMarkers()
 {
 
@@ -843,6 +843,8 @@ void InitMarkers()
 	}
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void CheckMarkers()
 {
 	std::vector<Markers> NewPos = MyHand.UpdatePositionOfMarkers();
@@ -902,6 +904,8 @@ void CheckMarkers()
 	OldPos = NewPos;
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void UpdateMarkerLocations()
 {
 	for (auto& curr : AllMarkers->GetReferenceMarkers())
@@ -923,6 +927,8 @@ void UpdateMarkerLocations()
 	}
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void SwapMarker(WorldMarker& Mark)
 {
 	world->removeChild(Mark.Marker);
@@ -941,8 +947,6 @@ void ReadAllLocalPositions()
 		std::cout << "local: " << curr.MarkerNumber << " " << curr.Marker->getLocalPos() << std::endl;
 		std::cout << "global: " << curr.MarkerNumber << " " << curr.Marker->getGlobalPos() << std::endl;
 	}
-
-
 
 }
 
@@ -986,24 +990,6 @@ void addSphere()
 	sphere->m_material->setPurpleBlueViolet();
 	sphere->m_material->setStiffness(0.5 * maxStiffness);
 }
-
-void ReadValsWTF()
-{
-	ReadAllLocalPositions();
-	
-	std::vector<WorldMarker> test = AllMarkers->GetReferenceMarkers();
-	WorldMarker test1 = test.back();
-	double objX = test1.X;
-	double objY = test1.Y;
-	double objZ = test1.Z;
-	
-	std::cout << "purple Local " << sphere->getLocalPos() << std::endl;
-	std::cout << "purple Global " << sphere->getGlobalPos() << std::endl;
-
-	std::cout <<"marker local " << test1.Marker->getLocalPos() << std::endl;
-	std::cout << "marker global " << test1.Marker->getGlobalPos() << std::endl;
-}
-
 
 void removeSphere()
 {
